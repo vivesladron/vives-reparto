@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#0066B2">
     <title>VIVES Reparto</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -26,13 +26,13 @@
             --text-primary: #1a1a1f;
             --text-secondary: #6b6b75;
             --text-muted: #9d9da6;
-            --accent-blue: #007aff;
+            --accent-blue: #0066B2;
             --accent-green: #34c759;
             --accent-orange: #ff9500;
-            --accent-red: #ff3b30;
+            --accent-red: #E53935;
             --border-color: #e5e5ea;
             --shadow: 0 2px 12px rgba(0,0,0,0.08);
-            --header-bg: #007aff;
+            --header-bg: #0066B2;
         }
 
         body {
@@ -56,10 +56,15 @@
             z-index: 100;
         }
 
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .header-title {
             font-size: 1.1rem;
             font-weight: 600;
-            text-align: center;
         }
 
         .header-subtitle {
@@ -67,6 +72,21 @@
             text-align: center;
             opacity: 0.85;
             margin-top: 2px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .user-badge:active {
+            background: rgba(255,255,255,0.3);
         }
 
         /* Filtro de repartidor */
@@ -123,22 +143,25 @@
         .entrega-row {
             display: flex;
             align-items: center;
-            padding: 14px 16px;
-            gap: 12px;
+            padding: 12px 12px;
+            gap: 10px;
             cursor: pointer;
         }
 
+        /* Iconos de estado - Estilo Glide */
         .status-icon {
             width: 44px;
             height: 44px;
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
             flex-shrink: 0;
             cursor: pointer;
             transition: transform 0.15s ease;
+            color: white;
         }
 
         .status-icon:active {
@@ -146,13 +169,41 @@
         }
 
         .status-icon.pagado {
-            background: #e3f2fd;
-            color: var(--accent-blue);
+            background: var(--accent-blue);
         }
 
         .status-icon.cobrar {
-            background: #ffebee;
-            color: var(--accent-red);
+            background: var(--accent-red);
+        }
+
+        .status-icon.indefinido {
+            background: var(--accent-blue);
+        }
+
+        .repartidor-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+            color: white;
+            background: var(--accent-red);
+        }
+
+        .repartidor-icon:active {
+            transform: scale(0.9);
+        }
+
+        .repartidor-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
         }
 
         .entrega-info {
@@ -262,6 +313,12 @@
             font-weight: 700;
             margin: 8px 0;
             line-height: 1.3;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        .detail-direccion:active {
+            color: var(--accent-blue);
         }
 
         .detail-cliente {
@@ -275,6 +332,12 @@
             font-weight: 600;
             margin-top: 12px;
             font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        .detail-telefono:active {
+            color: var(--accent-blue);
         }
 
         .detail-vendedor {
@@ -283,25 +346,45 @@
             margin-top: 8px;
         }
 
-        /* Botón WhatsApp */
-        .whatsapp-btn {
+        /* Botones estilo Glide */
+        .btn-glide {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background: #25d366;
+            background: var(--accent-blue);
             color: white;
             padding: 14px 24px;
-            border-radius: 12px;
+            border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
             font-size: 1rem;
-            margin: 20px 0;
+            margin: 12px 0;
             transition: transform 0.15s ease;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            font-family: inherit;
         }
 
-        .whatsapp-btn:active {
+        .btn-glide:active {
             transform: scale(0.98);
+        }
+
+        .btn-glide svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        .btn-glide.btn-foto {
+            background: #f0f0f0;
+            color: var(--text-secondary);
+        }
+
+        .btn-glide.btn-borrar {
+            background: var(--accent-blue);
         }
 
         /* Productos */
@@ -316,53 +399,55 @@
 
         .producto-header {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
         }
 
+        .producto-almacen-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            background: var(--accent-blue);
+            flex-shrink: 0;
+        }
+
+        .producto-almacen-icon.indefinido {
+            background: var(--accent-blue);
+        }
+
+        .producto-info-row {
+            flex: 1;
+            min-width: 0;
+        }
+
         .producto-qty {
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: var(--accent-blue);
             font-weight: 600;
         }
 
         .producto-nombre {
-            flex: 1;
             font-weight: 600;
-            color: var(--accent-blue);
-            font-size: 0.95rem;
-        }
-
-        .producto-almacen {
-            background: var(--bg-primary);
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.9rem;
             color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.3;
         }
 
-        /* Botón Cobrar */
-        .cobrar-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: var(--accent-blue);
-            color: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 600;
-            font-size: 1rem;
+        /* Observaciones destacadas */
+        .observaciones-box {
+            background: #fff3e0;
+            border-left: 4px solid var(--accent-orange);
+            padding: 12px 16px;
+            border-radius: 0 12px 12px 0;
             margin: 16px 0;
-            width: 100%;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .cobrar-btn.cobrado {
-            background: var(--accent-green);
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
 
         /* Notas */
@@ -386,29 +471,6 @@
             font-family: inherit;
             resize: vertical;
             background: var(--bg-card);
-        }
-
-        /* Botón Terminado */
-        .terminado-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: var(--accent-blue);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 600;
-            font-size: 1rem;
-            width: 100%;
-            cursor: pointer;
-            font-family: inherit;
-            margin-top: 20px;
-        }
-
-        .terminado-btn:active {
-            transform: scale(0.98);
         }
 
         /* Vista de producto */
@@ -462,52 +524,144 @@
         .almacen-selector {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             margin: 24px 0;
+            flex-wrap: wrap;
         }
 
         .almacen-btn {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            border: 2px solid var(--border-color);
-            background: var(--bg-card);
-            font-size: 1.2rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent-blue);
+            color: white;
+            font-size: 1.3rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
+            opacity: 0.4;
         }
 
         .almacen-btn.active {
-            background: var(--accent-blue);
-            color: white;
-            border-color: var(--accent-blue);
+            opacity: 1;
+            transform: scale(1.1);
         }
 
-        /* Botón foto */
-        .foto-btn {
+        /* Selector de repartidor entrega */
+        .repartidor-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 24px 0;
+        }
+
+        .repartidor-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent-red);
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            opacity: 0.4;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            padding: 14px 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            font-weight: 500;
-            font-size: 1rem;
-            width: 100%;
-            cursor: pointer;
-            font-family: inherit;
-            margin: 16px 0;
         }
 
+        .repartidor-btn.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .repartidor-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        /* Foto preview */
         .foto-preview {
             max-width: 100%;
             border-radius: 12px;
-            margin-top: 16px;
+            margin: 16px 0;
+        }
+
+        /* Modal de cobro */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 400;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.confirm {
+            background: var(--accent-blue);
+            color: white;
         }
 
         /* Tab bar */
@@ -537,6 +691,7 @@
             cursor: pointer;
             padding: 4px 16px;
             font-family: inherit;
+            position: relative;
         }
 
         .tab-item.active {
@@ -629,51 +784,6 @@
             display: block;
         }
 
-        /* Maps button */
-        .maps-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: var(--bg-card);
-            color: var(--accent-blue);
-            padding: 12px 20px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: 1px solid var(--border-color);
-            margin-top: 12px;
-        }
-
-        /* Observaciones destacadas */
-        .observaciones-box {
-            background: #fff3e0;
-            border-left: 4px solid var(--accent-orange);
-            padding: 12px 16px;
-            border-radius: 0 12px 12px 0;
-            margin: 16px 0;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        /* Badge de cantidad */
-        .badge-count {
-            background: var(--accent-red);
-            color: white;
-            font-size: 0.65rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            font-weight: 700;
-        }
-
-        .tab-item {
-            position: relative;
-        }
-
         /* Login View */
         .login-view {
             display: none;
@@ -682,7 +792,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #007aff 0%, #0055cc 100%);
+            background: linear-gradient(135deg, #0066B2 0%, #004080 100%);
             z-index: 500;
             justify-content: center;
             align-items: center;
@@ -737,7 +847,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease;
             font-family: inherit;
             text-align: left;
         }
@@ -814,29 +924,24 @@
 
         .password-btn.submit {
             background: white;
-            color: #007aff;
+            color: var(--accent-blue);
         }
 
-        /* User badge en header */
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.2);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        .user-badge:active {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .header-row {
+        /* Importe cobrado */
+        .importe-cobrado {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin: 12px 0;
+            font-size: 0.9rem;
+            color: #2e7d32;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .importe-cobrado strong {
+            font-family: 'JetBrains Mono', monospace;
         }
     </style>
 </head>
@@ -923,6 +1028,18 @@
         <div class="producto-detail-content" id="productoDetailContent"></div>
     </div>
 
+    <!-- Modal de cobro -->
+    <div class="modal-overlay" id="cobroModal">
+        <div class="modal-content">
+            <div class="modal-title">Importe cobrado</div>
+            <input type="number" class="modal-input" id="cobroInput" placeholder="0.00" step="0.01">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="cerrarModalCobro()">Cancelar</button>
+                <button class="modal-btn confirm" onclick="confirmarCobro()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Input para cámara -->
     <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
 
@@ -976,6 +1093,17 @@
             'EQ.2': { password: '2222', rol: 'repartidor', nombre: 'Equipo 2', pin: true }
         };
 
+        // Opciones de estado de pago: ? = por determinar, ✓ = pagado, € = por cobrar
+        const ESTADOS_PAGO = ['?', '✓', '€'];
+        
+        // Opciones de almacén
+        const ALMACENES = ['?', 'A', 'R', 'T', 'C'];
+        const ALMACEN_NOMBRES = { '?': 'Por definir', 'A': 'Almacén', 'R': 'Reservas', 'T': 'Tienda', 'C': 'Celsa' };
+        
+        // Opciones de quién entrega
+        const REPARTIDORES_ENTREGA = ['EQ', 'A', 'S'];
+        const REPARTIDOR_NOMBRES = { 'EQ': 'Equipo', 'A': 'Andoni', 'S': 'Segis' };
+
         // ========================================
         // ESTADO DE LA APLICACIÓN
         // ========================================
@@ -989,8 +1117,24 @@
             entregaSeleccionada: null,
             productoSeleccionado: null,
             pendingChanges: [],
-            usuarioActual: null
+            usuarioActual: null,
+            entregaParaCobro: null
         };
+
+        // ========================================
+        // ICONOS SVG
+        // ========================================
+        const SVG_EQUIPO = `<svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`;
+        
+        const SVG_PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
+        
+        const SVG_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+        
+        const SVG_CAMERA = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`;
+        
+        const SVG_ERASER = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l9-9 8 8-4 4z"/><path d="M6.5 13.5L12 8"/></svg>`;
+        
+        const SVG_MONEY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`;
 
         // ========================================
         // FUNCIONES DE AUTENTICACIÓN
@@ -999,8 +1143,16 @@
             return appData.usuarioActual && USUARIOS[appData.usuarioActual]?.rol === 'admin';
         }
 
-        function puedeEditar() {
+        function puedeEditarPago() {
             return isAdmin();
+        }
+
+        function puedeEditarAlmacen() {
+            return isAdmin();
+        }
+
+        function puedeEditarRepartidor() {
+            return true; // Todos pueden cambiar quién entrega
         }
 
         function login(usuario, password = null) {
@@ -1016,7 +1168,6 @@
             }
             
             appData.usuarioActual = usuario;
-            // Solo guardamos el usuario, no los datos de clientes
             localStorage.setItem('vivesRepartoUser', usuario);
             hideLogin();
             renderApp();
@@ -1025,7 +1176,6 @@
 
         function logout() {
             appData.usuarioActual = null;
-            // Limpiar datos sensibles de memoria
             appData.entregas = [];
             appData.articulos = [];
             localStorage.removeItem('vivesRepartoUser');
@@ -1043,7 +1193,6 @@
 
         function handleLogin(usuario) {
             const user = USUARIOS[usuario];
-            // Todos los usuarios requieren contraseña/PIN
             document.getElementById('passwordSection').classList.add('active');
             document.getElementById('selectedUser').value = usuario;
             document.getElementById('passwordInput').value = '';
@@ -1070,9 +1219,53 @@
             document.getElementById('passwordSection').classList.remove('active');
         }
 
-        // Almacenes disponibles
-        const ALMACENES = ['A', 'R', 'T', 'C'];
-        const ALMACEN_NOMBRES = { A: 'Almacén', R: 'Reservas', T: 'Tienda', C: 'Celsa' };
+        // ========================================
+        // ALMACENAMIENTO LOCAL
+        // ========================================
+        function saveToLocal() {
+            const configToSave = {
+                repartidorActual: appData.repartidorActual,
+                tabActual: appData.tabActual,
+                pendingChanges: appData.pendingChanges
+            };
+            localStorage.setItem('vivesRepartoConfig', JSON.stringify(configToSave));
+        }
+
+        function loadFromLocal() {
+            const savedUser = localStorage.getItem('vivesRepartoUser');
+            if (savedUser && USUARIOS[savedUser]) {
+                appData.usuarioActual = savedUser;
+            }
+            
+            const savedConfig = localStorage.getItem('vivesRepartoConfig');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                appData.repartidorActual = config.repartidorActual || 'TODOS';
+                appData.tabActual = config.tabActual || 'reparto';
+                appData.pendingChanges = config.pendingChanges || [];
+            }
+            
+            return appData.usuarioActual !== null;
+        }
+
+        function savePendingChange(change) {
+            appData.pendingChanges.push({
+                ...change,
+                timestamp: new Date().toISOString()
+            });
+            saveToLocal();
+            updateSyncIndicator();
+        }
+
+        function updateSyncIndicator() {
+            const indicator = document.getElementById('syncIndicator');
+            if (appData.pendingChanges.length > 0) {
+                indicator.classList.add('visible');
+                indicator.textContent = `⏳ ${appData.pendingChanges.length} cambio(s) pendiente(s)`;
+            } else {
+                indicator.classList.remove('visible');
+            }
+        }
 
         // ========================================
         // UTILIDADES
@@ -1110,55 +1303,15 @@
             return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
         }
 
-        // ========================================
-        // ALMACENAMIENTO LOCAL (solo configuración, NO datos de clientes)
-        // ========================================
-        function saveToLocal() {
-            // Solo guardamos configuración, NO datos de clientes
-            const configToSave = {
-                repartidorActual: appData.repartidorActual,
-                tabActual: appData.tabActual,
-                pendingChanges: appData.pendingChanges
-            };
-            localStorage.setItem('vivesRepartoConfig', JSON.stringify(configToSave));
+        function getEstadoPagoClass(estado) {
+            if (estado === '✓') return 'pagado';
+            if (estado === '€') return 'cobrar';
+            return 'indefinido';
         }
 
-        function loadFromLocal() {
-            // Cargar usuario
-            const savedUser = localStorage.getItem('vivesRepartoUser');
-            if (savedUser && USUARIOS[savedUser]) {
-                appData.usuarioActual = savedUser;
-            }
-            
-            // Cargar configuración (no datos de clientes)
-            const savedConfig = localStorage.getItem('vivesRepartoConfig');
-            if (savedConfig) {
-                const config = JSON.parse(savedConfig);
-                appData.repartidorActual = config.repartidorActual || 'TODOS';
-                appData.tabActual = config.tabActual || 'reparto';
-                appData.pendingChanges = config.pendingChanges || [];
-            }
-            
-            return appData.usuarioActual !== null;
-        }
-
-        function savePendingChange(change) {
-            appData.pendingChanges.push({
-                ...change,
-                timestamp: new Date().toISOString()
-            });
-            saveToLocal();
-            updateSyncIndicator();
-        }
-
-        function updateSyncIndicator() {
-            const indicator = document.getElementById('syncIndicator');
-            if (appData.pendingChanges.length > 0) {
-                indicator.classList.add('visible');
-                indicator.textContent = `⏳ ${appData.pendingChanges.length} cambio(s) pendiente(s)`;
-            } else {
-                indicator.classList.remove('visible');
-            }
+        function getRepartidorIcon(repartidor) {
+            if (repartidor === 'EQ') return SVG_EQUIPO;
+            return repartidor;
         }
 
         // ========================================
@@ -1174,7 +1327,6 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     
-                    // Buscar hojas (flexibilidad en nombres)
                     const repartoSheetName = workbook.SheetNames.find(n => 
                         n.toLowerCase().includes('reparto') || n === workbook.SheetNames[0]
                     );
@@ -1212,9 +1364,11 @@
                     formatPhone(row['Tel2'] || row['TEL2']),
                     formatPhone(row['Tel3'] || row['TEL3'])
                 ].filter(t => t),
-                cobrado: row['COBRADO'] === 'SI' || (row['DOCUMENTO'] || '').startsWith('F/'),
+                estadoPago: '?', // Por defecto: por determinar
+                quienEntrega: 'EQ', // Por defecto: Equipo
                 estado: row['ESTADO'] || 'PENDIENTE',
-                notas: row['NOTAS_REPARTO'] || ''
+                notas: row['NOTAS_REPARTO'] || '',
+                importeCobrado: null
             }));
 
             appData.articulos = listaData.map((row, index) => ({
@@ -1223,14 +1377,13 @@
                 codigo: row['CÓDIGO'] || row['CODIGO'],
                 articulo: row['ARTÍCULO'] || row['ARTICULO'],
                 cantidad: row['CANTIDAD'] || 1,
-                almacen: row['ALMACÉN'] || row['ALMACEN'] || 'A',
-                fotoSerie: row['FOTO_SERIE'] || null
+                almacen: '?', // Por defecto: por determinar
+                fotoSerie: row['FOTO_SERIE'] || null,
+                fotoLocal: null
             }));
 
-            // Repartidores únicos
             appData.repartidores = ['TODOS', ...new Set(appData.entregas.map(e => e.repartidor))].filter(r => r);
             
-            // Fecha
             if (appData.entregas.length > 0) {
                 appData.fecha = appData.entregas[0].dia;
             }
@@ -1242,22 +1395,46 @@
         // ========================================
         // ACCIONES
         // ========================================
-        function toggleCobrado(entregaId, event) {
-            event.stopPropagation();
+        function toggleEstadoPago(entregaId, event) {
+            if (event) event.stopPropagation();
+            if (!puedeEditarPago()) return;
+            
             const entrega = appData.entregas.find(e => e.id === entregaId);
             if (entrega) {
-                entrega.cobrado = !entrega.cobrado;
+                const idx = ESTADOS_PAGO.indexOf(entrega.estadoPago);
+                entrega.estadoPago = ESTADOS_PAGO[(idx + 1) % ESTADOS_PAGO.length];
                 savePendingChange({
-                    type: 'cobrado',
+                    type: 'estadoPago',
                     documento: entrega.documento,
-                    value: entrega.cobrado ? 'SI' : 'NO'
+                    value: entrega.estadoPago
                 });
                 saveToLocal();
                 renderApp();
+                if (appData.entregaSeleccionada) renderDetail();
+            }
+        }
+
+        function toggleQuienEntrega(entregaId, event) {
+            if (event) event.stopPropagation();
+            
+            const entrega = appData.entregas.find(e => e.id === entregaId);
+            if (entrega) {
+                const idx = REPARTIDORES_ENTREGA.indexOf(entrega.quienEntrega);
+                entrega.quienEntrega = REPARTIDORES_ENTREGA[(idx + 1) % REPARTIDORES_ENTREGA.length];
+                savePendingChange({
+                    type: 'quienEntrega',
+                    documento: entrega.documento,
+                    value: entrega.quienEntrega
+                });
+                saveToLocal();
+                renderApp();
+                if (appData.entregaSeleccionada) renderDetail();
             }
         }
 
         function cambiarAlmacen(articuloId, nuevoAlmacen) {
+            if (!puedeEditarAlmacen()) return;
+            
             const articulo = appData.articulos.find(a => a.id === articuloId);
             if (articulo) {
                 articulo.almacen = nuevoAlmacen;
@@ -1269,6 +1446,20 @@
                 });
                 saveToLocal();
                 renderProductoDetail();
+                renderDetail();
+            }
+        }
+
+        function cambiarQuienEntregaDirecto(entregaId, valor) {
+            const entrega = appData.entregas.find(e => e.id === entregaId);
+            if (entrega) {
+                entrega.quienEntrega = valor;
+                savePendingChange({
+                    type: 'quienEntrega',
+                    documento: entrega.documento,
+                    value: valor
+                });
+                saveToLocal();
                 renderDetail();
             }
         }
@@ -1302,6 +1493,38 @@
         }
 
         // ========================================
+        // COBRO
+        // ========================================
+        function abrirModalCobro(entregaId) {
+            appData.entregaParaCobro = entregaId;
+            const entrega = appData.entregas.find(e => e.id === entregaId);
+            document.getElementById('cobroInput').value = entrega?.importeCobrado || '';
+            document.getElementById('cobroModal').classList.add('active');
+            document.getElementById('cobroInput').focus();
+        }
+
+        function cerrarModalCobro() {
+            document.getElementById('cobroModal').classList.remove('active');
+            appData.entregaParaCobro = null;
+        }
+
+        function confirmarCobro() {
+            const importe = parseFloat(document.getElementById('cobroInput').value) || 0;
+            const entrega = appData.entregas.find(e => e.id === appData.entregaParaCobro);
+            if (entrega) {
+                entrega.importeCobrado = importe;
+                savePendingChange({
+                    type: 'importeCobrado',
+                    documento: entrega.documento,
+                    value: importe
+                });
+                saveToLocal();
+                renderDetail();
+            }
+            cerrarModalCobro();
+        }
+
+        // ========================================
         // FOTOS
         // ========================================
         let fotoArticuloActual = null;
@@ -1324,7 +1547,7 @@
                         type: 'foto',
                         documento: articulo.documento,
                         codigo: articulo.codigo,
-                        value: e.target.result.substring(0, 100) + '...' // Solo guardamos referencia
+                        value: 'foto_tomada'
                     });
                     saveToLocal();
                     renderProductoDetail();
@@ -1333,26 +1556,33 @@
             reader.readAsDataURL(file);
         }
 
+        function borrarFoto(articuloId) {
+            const articulo = appData.articulos.find(a => a.id === articuloId);
+            if (articulo) {
+                articulo.fotoLocal = null;
+                articulo.fotoSerie = null;
+                saveToLocal();
+                renderProductoDetail();
+            }
+        }
+
         // ========================================
         // RENDERIZADO
         // ========================================
         function renderApp() {
             document.getElementById('headerDate').textContent = formatDate(appData.fecha);
             
-            // Mostrar usuario actual
             if (appData.usuarioActual) {
                 const user = USUARIOS[appData.usuarioActual];
                 document.getElementById('userBadgeIcon').textContent = isAdmin() ? '👔' : '🚛';
                 document.getElementById('userBadgeName').textContent = appData.usuarioActual;
             }
             
-            // Filtros
             document.getElementById('filterBar').innerHTML = appData.repartidores.map(rep => 
                 `<button class="filter-btn ${rep === appData.repartidorActual ? 'active' : ''}" 
                          onclick="selectRepartidor('${rep}')">${rep}</button>`
             ).join('');
 
-            // Contenido según tab
             renderMainContent();
             updateTabBadges();
             updateSyncIndicator();
@@ -1391,14 +1621,12 @@
                 return;
             }
 
-            // Ordenar por hora
             entregas.sort((a, b) => {
                 const horaA = (a.hora || '').split(' - ')[0] || '99:99';
                 const horaB = (b.hora || '').split(' - ')[0] || '99:99';
                 return horaA.localeCompare(horaB);
             });
 
-            // Agrupar por hora
             const grupos = {};
             entregas.forEach(e => {
                 const hora = e.hora || 'Sin hora';
@@ -1423,21 +1651,26 @@
             const obsPreview = entrega.observaciones ? 
                 entrega.observaciones.substring(0, 60) + (entrega.observaciones.length > 60 ? '...' : '') : '';
             
-            const canEdit = puedeEditar();
+            const canEditPago = puedeEditarPago();
+            const estadoClass = getEstadoPagoClass(entrega.estadoPago);
+            const repartidorIcon = getRepartidorIcon(entrega.quienEntrega);
             
             return `
                 <div class="entrega-card">
                     <div class="entrega-row" onclick="openDetail('${entrega.id}')">
-                        <div class="status-icon ${entrega.cobrado ? 'pagado' : 'cobrar'}" 
-                             ${canEdit ? `onclick="toggleCobrado('${entrega.id}', event)"` : ''}
-                             style="${canEdit ? '' : 'cursor: default;'}">
-                            ${entrega.cobrado ? '✓' : '€'}
+                        <div class="status-icon ${estadoClass}" 
+                             ${canEditPago ? `onclick="toggleEstadoPago('${entrega.id}', event)"` : ''}
+                             style="${canEditPago ? '' : 'cursor: default;'}">
+                            ${entrega.estadoPago}
                         </div>
                         <div class="entrega-info">
                             <div class="cliente-nombre">${entrega.cliente}</div>
                             <div class="cliente-direccion">${entrega.direccion}</div>
                             <div class="cliente-vendedor">${entrega.documento} - ${entrega.vendedor}</div>
                             ${obsPreview ? `<div class="observaciones-preview">${obsPreview}</div>` : ''}
+                        </div>
+                        <div class="repartidor-icon" onclick="toggleQuienEntrega('${entrega.id}', event)">
+                            ${entrega.quienEntrega === 'EQ' ? SVG_EQUIPO : entrega.quienEntrega}
                         </div>
                         <div class="arrow-icon">›</div>
                     </div>
@@ -1446,12 +1679,9 @@
         }
 
         function updateTabBadges() {
-            const pendientes = appData.entregas.filter(e => e.estado !== 'TERMINADO').length;
-            const terminados = appData.entregas.filter(e => e.estado === 'TERMINADO').length;
-            
-            // Actualizar clases activas
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab${appData.tabActual.charAt(0).toUpperCase() + appData.tabActual.slice(1)}`).classList.add('active');
+            const tabId = `tab${appData.tabActual.charAt(0).toUpperCase() + appData.tabActual.slice(1)}`;
+            document.getElementById(tabId)?.classList.add('active');
         }
 
         // ========================================
@@ -1476,48 +1706,51 @@
 
             const articulos = appData.articulos.filter(a => a.documento === entrega.documento);
             const telefono = entrega.telefonos[0] || '';
-            const canEdit = puedeEditar();
+            const canEditPago = puedeEditarPago();
+            const mapsLink = getMapsLink(entrega.direccion, entrega.poblacion, entrega.cp);
+            const waLink = telefono ? getWhatsAppLink(telefono) : null;
 
             let html = `
                 <div class="detail-location">
                     <div class="detail-zona">${entrega.poblacion} ${entrega.cp}</div>
-                    <div class="detail-direccion">${entrega.direccion}</div>
+                    <div class="detail-direccion" onclick="window.open('${mapsLink}', '_blank')">${entrega.direccion}</div>
                     <div class="detail-cliente">${entrega.cliente}</div>
-                    ${telefono ? `<div class="detail-telefono">Tel: ${telefono}</div>` : ''}
+                    ${telefono ? `<div class="detail-telefono" onclick="window.location.href='tel:${telefono}'">Tel: ${telefono}</div>` : ''}
                     <div class="detail-vendedor">Vendedor: ${entrega.vendedor}</div>
-                    
-                    <a href="${getMapsLink(entrega.direccion, entrega.poblacion, entrega.cp)}" 
-                       target="_blank" class="maps-btn">
-                        📍 Abrir en Google Maps
-                    </a>
                 </div>
 
-                ${telefono ? `
-                    <a href="${getWhatsAppLink(telefono)}" target="_blank" class="whatsapp-btn">
-                        📱 Whatsapp
+                ${waLink ? `
+                    <a href="${waLink}" target="_blank" class="btn-glide">
+                        ${SVG_PHONE}
+                        Whatsapp
                     </a>
                 ` : ''}
 
                 ${articulos.map(a => `
-                    <div class="producto-card" onclick="${canEdit ? `openProductoDetail('${a.id}')` : ''}">
+                    <div class="producto-card" onclick="openProductoDetail('${a.id}')">
                         <div class="producto-header">
-                            <div class="producto-qty">${a.cantidad}x</div>
-                            <div class="producto-nombre">${a.articulo}</div>
-                            <div class="producto-almacen">${a.almacen}</div>
+                            <div class="producto-almacen-icon ${a.almacen === '?' ? 'indefinido' : ''}">${a.almacen}</div>
+                            <div class="producto-info-row">
+                                <div class="producto-qty">${a.cantidad}x</div>
+                                <div class="producto-nombre">${a.articulo}</div>
+                            </div>
                         </div>
                     </div>
                 `).join('')}
 
-                ${canEdit ? `
-                    <button class="cobrar-btn ${entrega.cobrado ? 'cobrado' : ''}" 
-                            onclick="toggleCobrado('${entrega.id}', event)">
-                        ${entrega.cobrado ? '✓ Pagado' : '💰 Cobrar'}
+                ${(entrega.estadoPago === '€' || entrega.estadoPago === '?') ? `
+                    <button class="btn-glide" onclick="abrirModalCobro('${entrega.id}')">
+                        ${SVG_MONEY}
+                        Cobrar
                     </button>
-                ` : `
-                    <div class="cobrar-btn ${entrega.cobrado ? 'cobrado' : ''}" style="cursor: default;">
-                        ${entrega.cobrado ? '✓ Pagado' : '💰 Pendiente de cobro'}
+                ` : ''}
+
+                ${entrega.importeCobrado ? `
+                    <div class="importe-cobrado">
+                        <span>Importe cobrado:</span>
+                        <strong>${entrega.importeCobrado.toFixed(2)} €</strong>
                     </div>
-                `}
+                ` : ''}
 
                 ${entrega.observaciones ? `
                     <div class="observaciones-box">${entrega.observaciones}</div>
@@ -1530,8 +1763,9 @@
                               onchange="guardarNotas('${entrega.id}', this.value)">${entrega.notas || ''}</textarea>
                 </div>
 
-                <button class="terminado-btn" onclick="marcarTerminado('${entrega.id}')">
-                    ✓ Terminado
+                <button class="btn-glide" onclick="marcarTerminado('${entrega.id}')">
+                    ${SVG_CHECK}
+                    Terminado
                 </button>
             `;
 
@@ -1557,7 +1791,8 @@
             if (!articulo) return;
 
             const entrega = appData.entregas.find(e => e.documento === articulo.documento);
-            const canEdit = puedeEditar();
+            const canEditAlmacen = puedeEditarAlmacen();
+            const tieneFoto = articulo.fotoLocal || articulo.fotoSerie;
 
             let html = `
                 <div class="producto-detail-qty">${articulo.cantidad}x</div>
@@ -1568,7 +1803,7 @@
                     <div class="producto-detail-info">${entrega.direccion}</div>
                 ` : ''}
 
-                ${canEdit ? `
+                ${canEditAlmacen ? `
                     <div class="almacen-selector">
                         ${ALMACENES.map(a => `
                             <button class="almacen-btn ${articulo.almacen === a ? 'active' : ''}"
@@ -1577,12 +1812,17 @@
                     </div>
                 ` : ''}
 
-                <button class="foto-btn" onclick="tomarFoto('${articulo.id}')">
-                    📷 Tomar una foto
+                <button class="btn-glide btn-foto" onclick="tomarFoto('${articulo.id}')">
+                    ${SVG_CAMERA}
+                    Tomar una foto
                 </button>
 
-                ${articulo.fotoLocal ? `
-                    <img src="${articulo.fotoLocal}" class="foto-preview" alt="Foto serie">
+                ${tieneFoto ? `
+                    <img src="${articulo.fotoLocal || articulo.fotoSerie}" class="foto-preview" alt="Foto serie">
+                    <button class="btn-glide btn-borrar" onclick="borrarFoto('${articulo.id}')">
+                        ${SVG_ERASER}
+                        Borrar foto
+                    </button>
                 ` : ''}
 
                 <div class="notas-section">
@@ -1613,18 +1853,14 @@
         // INICIALIZACIÓN
         // ========================================
         function init() {
-            // Cargar configuración (usuario, preferencias)
             const hasUser = loadFromLocal();
             
-            // Verificar si hay usuario logueado
             if (!hasUser || !appData.usuarioActual) {
                 showLogin();
             } else {
                 hideLogin();
-                // Los datos de clientes se cargan con el Excel, no persisten
             }
             
-            // Fecha en header
             document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-ES');
         }
 
