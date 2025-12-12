@@ -45,7 +45,6 @@
             padding-bottom: 80px;
         }
 
-        /* Header */
         .header {
             background: var(--header-bg);
             color: white;
@@ -81,15 +80,14 @@
             background: rgba(255,255,255,0.2);
             padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .user-badge:active {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Filtro de repartidor */
         .filter-bar {
             background: var(--bg-secondary);
             padding: 12px 16px;
@@ -110,7 +108,6 @@
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.2s ease;
             font-family: inherit;
         }
 
@@ -119,7 +116,6 @@
             color: white;
         }
 
-        /* Grupos por hora */
         .time-group {
             margin-top: 16px;
         }
@@ -131,7 +127,6 @@
             color: var(--text-secondary);
         }
 
-        /* Cards de entrega */
         .entrega-card {
             background: var(--bg-card);
             margin: 0 16px 8px;
@@ -143,12 +138,11 @@
         .entrega-row {
             display: flex;
             align-items: center;
-            padding: 12px 12px;
+            padding: 12px;
             gap: 10px;
             cursor: pointer;
         }
 
-        /* Iconos de estado - Estilo Glide */
         .status-icon {
             width: 44px;
             height: 44px;
@@ -160,25 +154,13 @@
             font-weight: 700;
             flex-shrink: 0;
             cursor: pointer;
-            transition: transform 0.15s ease;
             color: white;
         }
 
-        .status-icon:active {
-            transform: scale(0.9);
-        }
-
-        .status-icon.pagado {
-            background: var(--accent-blue);
-        }
-
-        .status-icon.cobrar {
-            background: var(--accent-red);
-        }
-
-        .status-icon.indefinido {
-            background: var(--accent-blue);
-        }
+        .status-icon:active { transform: scale(0.9); }
+        .status-icon.pagado { background: var(--accent-blue); }
+        .status-icon.cobrar { background: var(--accent-red); }
+        .status-icon.indefinido { background: var(--accent-blue); }
 
         .repartidor-icon {
             width: 44px;
@@ -191,76 +173,31 @@
             font-weight: 700;
             flex-shrink: 0;
             cursor: pointer;
-            transition: transform 0.15s ease;
             color: white;
             background: var(--accent-red);
         }
 
-        .repartidor-icon:active {
-            transform: scale(0.9);
-        }
+        .repartidor-icon:active { transform: scale(0.9); }
+        .repartidor-icon svg { width: 24px; height: 24px; fill: white; }
 
-        .repartidor-icon svg {
-            width: 24px;
-            height: 24px;
-            fill: white;
-        }
+        .entrega-info { flex: 1; min-width: 0; }
+        .cliente-nombre { font-weight: 600; font-size: 0.95rem; color: var(--accent-blue); margin-bottom: 2px; }
+        .cliente-direccion { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+        .cliente-vendedor { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        .observaciones-preview { font-size: 0.8rem; color: var(--accent-red); font-weight: 500; margin-top: 4px; }
+        .arrow-icon { color: var(--text-muted); font-size: 1.2rem; }
 
-        .entrega-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .cliente-nombre {
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: var(--accent-blue);
-            margin-bottom: 2px;
-        }
-
-        .cliente-direccion {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            line-height: 1.3;
-        }
-
-        .cliente-vendedor {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .observaciones-preview {
-            font-size: 0.8rem;
-            color: var(--accent-red);
-            font-weight: 500;
-            margin-top: 4px;
-            line-height: 1.3;
-        }
-
-        .arrow-icon {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-        }
-
-        /* Vista de detalle */
-        .detail-view {
+        .detail-view, .producto-detail-view {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: var(--bg-primary);
             z-index: 200;
             overflow-y: auto;
             padding-bottom: 100px;
         }
-
-        .detail-view.active {
-            display: block;
-        }
+        .detail-view.active, .producto-detail-view.active { display: block; }
+        .producto-detail-view { z-index: 300; }
 
         .detail-header {
             background: var(--header-bg);
@@ -282,71 +219,19 @@
             font-size: 1.5rem;
             cursor: pointer;
             padding: 4px;
-            display: flex;
-            align-items: center;
         }
 
-        .detail-header-text {
-            flex: 1;
-            text-align: center;
-            font-weight: 600;
-        }
+        .detail-header-text { flex: 1; text-align: center; font-weight: 600; }
+        .detail-content, .producto-detail-content { padding: 20px; }
+        .detail-location { text-align: center; margin-bottom: 20px; }
+        .detail-zona { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; }
+        .detail-direccion { font-size: 1.4rem; font-weight: 700; margin: 8px 0; cursor: pointer; }
+        .detail-direccion:active { color: var(--accent-blue); }
+        .detail-cliente { font-size: 1.1rem; color: var(--accent-blue); font-weight: 600; }
+        .detail-telefono { font-size: 1.3rem; font-weight: 600; margin-top: 12px; font-family: 'JetBrains Mono', monospace; cursor: pointer; }
+        .detail-telefono:active { color: var(--accent-blue); }
+        .detail-vendedor { font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px; }
 
-        .detail-content {
-            padding: 20px;
-        }
-
-        .detail-location {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .detail-zona {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .detail-direccion {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin: 8px 0;
-            line-height: 1.3;
-            cursor: pointer;
-            color: var(--text-primary);
-        }
-
-        .detail-direccion:active {
-            color: var(--accent-blue);
-        }
-
-        .detail-cliente {
-            font-size: 1.1rem;
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
-
-        .detail-telefono {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-top: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            cursor: pointer;
-            color: var(--text-primary);
-        }
-
-        .detail-telefono:active {
-            color: var(--accent-blue);
-        }
-
-        .detail-vendedor {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        /* Botones estilo Glide */
         .btn-glide {
             display: flex;
             align-items: center;
@@ -360,34 +245,15 @@
             font-weight: 600;
             font-size: 1rem;
             margin: 12px 0;
-            transition: transform 0.15s ease;
             border: none;
             width: 100%;
             cursor: pointer;
             font-family: inherit;
         }
+        .btn-glide:active { transform: scale(0.98); }
+        .btn-glide svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
+        .btn-glide.btn-foto { background: #f0f0f0; color: var(--text-secondary); }
 
-        .btn-glide:active {
-            transform: scale(0.98);
-        }
-
-        .btn-glide svg {
-            width: 20px;
-            height: 20px;
-            stroke: currentColor;
-            fill: none;
-        }
-
-        .btn-glide.btn-foto {
-            background: #f0f0f0;
-            color: var(--text-secondary);
-        }
-
-        .btn-glide.btn-borrar {
-            background: var(--accent-blue);
-        }
-
-        /* Productos */
         .producto-card {
             background: var(--bg-card);
             border-radius: 12px;
@@ -397,11 +263,7 @@
             cursor: pointer;
         }
 
-        .producto-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .producto-header { display: flex; align-items: center; gap: 12px; }
 
         .producto-almacen-icon {
             width: 40px;
@@ -417,29 +279,10 @@
             flex-shrink: 0;
         }
 
-        .producto-almacen-icon.indefinido {
-            background: var(--accent-blue);
-        }
+        .producto-info-row { flex: 1; }
+        .producto-qty { font-size: 0.85rem; color: var(--accent-blue); font-weight: 600; }
+        .producto-nombre { font-weight: 600; color: var(--text-primary); font-size: 0.95rem; }
 
-        .producto-info-row {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .producto-qty {
-            font-size: 0.85rem;
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
-
-        .producto-nombre {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            line-height: 1.3;
-        }
-
-        /* Observaciones destacadas */
         .observaciones-box {
             background: #fff3e0;
             border-left: 4px solid var(--accent-orange);
@@ -447,20 +290,10 @@
             border-radius: 0 12px 12px 0;
             margin: 16px 0;
             font-size: 0.9rem;
-            line-height: 1.4;
         }
 
-        /* Notas */
-        .notas-section {
-            margin: 20px 0;
-        }
-
-        .notas-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
+        .notas-section { margin: 20px 0; }
+        .notas-label { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
         .notas-input {
             width: 100%;
             min-height: 100px;
@@ -473,65 +306,15 @@
             background: var(--bg-card);
         }
 
-        /* Vista de producto */
-        .producto-detail-view {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--bg-primary);
-            z-index: 300;
-            overflow-y: auto;
-        }
+        .producto-detail-content { text-align: center; }
+        .producto-detail-qty { font-size: 1.5rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .producto-detail-nombre { font-size: 1.4rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 16px; }
+        .producto-detail-almacen { font-size: 1rem; margin-bottom: 8px; }
+        .producto-detail-info { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; }
 
-        .producto-detail-view.active {
-            display: block;
-        }
-
-        .producto-detail-content {
-            padding: 20px;
-            text-align: center;
-        }
-
-        .producto-detail-qty {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .producto-detail-nombre {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--accent-blue);
-            margin-bottom: 16px;
-            line-height: 1.3;
-        }
-
-        .producto-detail-almacen {
-            font-size: 1rem;
-            margin-bottom: 8px;
-        }
-
-        .producto-detail-info {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        /* Selector de almacén */
-        .almacen-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 24px 0;
-            flex-wrap: wrap;
-        }
-
+        .almacen-selector { display: flex; justify-content: center; gap: 10px; margin: 24px 0; flex-wrap: wrap; }
         .almacen-btn {
-            width: 52px;
-            height: 52px;
+            width: 52px; height: 52px;
             border-radius: 10px;
             border: none;
             background: var(--accent-blue);
@@ -539,137 +322,35 @@
             font-size: 1.3rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
             font-family: inherit;
             opacity: 0.4;
         }
+        .almacen-btn.active { opacity: 1; transform: scale(1.1); }
 
-        .almacen-btn.active {
-            opacity: 1;
-            transform: scale(1.1);
-        }
+        .foto-preview { max-width: 100%; border-radius: 12px; margin: 16px 0; }
 
-        /* Selector de repartidor entrega */
-        .repartidor-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 24px 0;
-        }
-
-        .repartidor-btn {
-            width: 52px;
-            height: 52px;
-            border-radius: 10px;
-            border: none;
-            background: var(--accent-red);
-            color: white;
-            font-size: 1.3rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            opacity: 0.4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .repartidor-btn.active {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .repartidor-btn svg {
-            width: 28px;
-            height: 28px;
-            fill: white;
-        }
-
-        /* Foto preview */
-        .foto-preview {
-            max-width: 100%;
-            border-radius: 12px;
-            margin: 16px 0;
-        }
-
-        /* Modal de cobro */
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5);
             z-index: 400;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; padding: 24px; width: 100%; max-width: 320px; }
+        .modal-title { font-size: 1.2rem; font-weight: 700; text-align: center; margin-bottom: 20px; }
+        .modal-input { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1.2rem; text-align: center; font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; }
+        .modal-buttons { display: flex; gap: 12px; }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .modal-btn.cancel { background: var(--bg-primary); color: var(--text-secondary); }
+        .modal-btn.confirm { background: var(--accent-blue); color: white; }
 
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 1.2rem;
-            text-align: center;
-            font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 16px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .modal-btn.cancel {
-            background: var(--bg-primary);
-            color: var(--text-secondary);
-        }
-
-        .modal-btn.confirm {
-            background: var(--accent-blue);
-            color: white;
-        }
-
-        /* Tab bar */
         .tab-bar {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             background: var(--bg-secondary);
             display: flex;
             justify-content: space-around;
@@ -678,7 +359,6 @@
             border-top: 1px solid var(--border-color);
             z-index: 100;
         }
-
         .tab-item {
             display: flex;
             flex-direction: column;
@@ -691,33 +371,13 @@
             cursor: pointer;
             padding: 4px 16px;
             font-family: inherit;
-            position: relative;
         }
+        .tab-item.active { color: var(--accent-blue); }
+        .tab-item svg { width: 24px; height: 24px; }
 
-        .tab-item.active {
-            color: var(--accent-blue);
-        }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; }
 
-        .tab-item svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* Estado vacío */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state svg {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        /* Upload inicial */
         .upload-section {
             padding: 40px 20px;
             text-align: center;
@@ -727,7 +387,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .upload-area {
             background: var(--bg-card);
             border: 2px dashed var(--border-color);
@@ -736,40 +395,17 @@
             width: 100%;
             max-width: 350px;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
+        .upload-area:active { border-color: var(--accent-blue); }
+        .upload-area svg { width: 48px; height: 48px; color: var(--accent-blue); margin-bottom: 16px; }
+        .upload-area h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .upload-area p { color: var(--text-secondary); font-size: 0.9rem; }
 
-        .upload-area:active {
-            border-color: var(--accent-blue);
-            background: var(--bg-card-hover);
-        }
+        #fileInput, #cameraInput { display: none; }
 
-        .upload-area svg {
-            width: 48px;
-            height: 48px;
-            color: var(--accent-blue);
-            margin-bottom: 16px;
-        }
-
-        .upload-area h3 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
-
-        .upload-area p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        #fileInput, #cameraInput {
-            display: none;
-        }
-
-        /* Sync indicator */
         .sync-indicator {
             position: fixed;
-            top: 70px;
-            right: 16px;
+            top: 70px; right: 16px;
             background: var(--accent-orange);
             color: white;
             padding: 6px 12px;
@@ -779,193 +415,54 @@
             display: none;
             z-index: 150;
         }
+        .sync-indicator.visible { display: block; }
 
-        .sync-indicator.visible {
-            display: block;
-        }
-
-        /* Login View */
         .login-view {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, #0066B2 0%, #004080 100%);
             z-index: 500;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
+        .login-view.active { display: flex; }
+        .login-container { width: 100%; max-width: 340px; }
+        .login-logo { text-align: center; color: white; margin-bottom: 40px; }
+        .login-icon { font-size: 4rem; margin-bottom: 16px; }
+        .login-logo h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+        .login-logo p { opacity: 0.85; font-size: 1rem; }
+        .login-step { display: flex; flex-direction: column; gap: 12px; }
+        .login-input { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-family: inherit; text-align: center; }
+        .login-input.pin-input { font-size: 1.8rem; letter-spacing: 8px; font-family: 'JetBrains Mono', monospace; }
+        .login-submit-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; font-family: inherit; background: white; color: var(--accent-blue); }
+        .login-submit-btn:active { transform: scale(0.98); }
+        .login-submit-btn:disabled { opacity: 0.6; }
+        .login-back-btn { background: transparent; border: none; color: white; font-size: 0.95rem; cursor: pointer; padding: 12px; font-family: inherit; opacity: 0.85; }
+        .login-info { color: white; text-align: center; font-size: 0.85rem; opacity: 0.75; margin-top: 8px; }
+        .login-email-sent { color: white; text-align: center; font-size: 0.95rem; margin-bottom: 8px; }
+        .login-error { color: #ffcdd2; text-align: center; font-size: 0.9rem; margin-top: 16px; min-height: 24px; }
 
-        .login-view.active {
-            display: flex;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 340px;
-        }
-
-        .login-logo {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
-
-        .login-icon {
-            font-size: 4rem;
-            margin-bottom: 16px;
-        }
-
-        .login-logo h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .login-logo p {
-            opacity: 0.85;
-            font-size: 1rem;
-        }
-
-        .login-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .login-btn {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: white;
-            border: none;
-            padding: 18px 20px;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.15s ease;
-            font-family: inherit;
-            text-align: left;
-        }
-
-        .login-btn:active {
-            transform: scale(0.98);
-        }
-
-        .login-btn.admin {
-            background: #fff3e0;
-            color: #e65100;
-        }
-
-        .login-btn.equipo {
-            background: white;
-            color: #1a1a1f;
-        }
-
-        .login-btn-icon {
-            font-size: 1.5rem;
-        }
-
-        .login-btn-text {
-            flex: 1;
-        }
-
-        .password-section {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .password-section.active {
-            display: block;
-        }
-
-        .password-label {
-            color: white;
-            text-align: center;
-            margin-bottom: 12px;
-            font-size: 0.95rem;
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-family: inherit;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .password-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .password-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .password-btn.cancel {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        .password-btn.submit {
-            background: white;
-            color: var(--accent-blue);
-        }
-
-        /* Importe cobrado */
-        .importe-cobrado {
-            background: #e8f5e9;
-            border-radius: 8px;
-            padding: 10px 16px;
-            margin: 12px 0;
-            font-size: 0.9rem;
-            color: #2e7d32;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .importe-cobrado strong {
-            font-family: 'JetBrains Mono', monospace;
-        }
+        .importe-cobrado { background: #e8f5e9; border-radius: 8px; padding: 10px 16px; margin: 12px 0; font-size: 0.9rem; color: #2e7d32; display: flex; justify-content: space-between; }
+        .importe-cobrado strong { font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- Header -->
         <header class="header">
             <div class="header-row">
                 <div class="header-title">Reparto</div>
                 <div class="user-badge" onclick="logout()" id="userBadge">
-                    <span id="userBadgeIcon">👤</span>
                     <span id="userBadgeName">Usuario</span>
                 </div>
             </div>
             <div class="header-subtitle" id="headerDate"></div>
         </header>
 
-        <!-- Filtro de repartidor -->
         <div class="filter-bar" id="filterBar"></div>
-
-        <!-- Sync indicator -->
         <div class="sync-indicator" id="syncIndicator">⏳ Sincronizando...</div>
 
-        <!-- Contenido principal -->
         <main id="mainContent">
             <div class="upload-section">
                 <div class="upload-area" onclick="document.getElementById('fileInput').click()">
@@ -979,36 +476,26 @@
             </div>
         </main>
 
-        <!-- Tab bar -->
         <nav class="tab-bar">
             <button class="tab-item active" onclick="showTab('reparto')" id="tabReparto">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                 Reparto
             </button>
             <button class="tab-item" onclick="showTab('terminados')" id="tabTerminados">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 Terminados
             </button>
             <button class="tab-item" onclick="showTab('servicios')" id="tabServicios">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                 Servicios
             </button>
             <button class="tab-item" onclick="showTab('carrito')" id="tabCarrito">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 Carrito
             </button>
         </nav>
     </div>
 
-    <!-- Vista de detalle de entrega -->
     <div class="detail-view" id="detailView">
         <div class="detail-header">
             <button class="back-btn" onclick="closeDetail()">←</button>
@@ -1018,7 +505,6 @@
         <div class="detail-content" id="detailContent"></div>
     </div>
 
-    <!-- Vista de detalle de producto -->
     <div class="producto-detail-view" id="productoDetailView">
         <div class="detail-header">
             <button class="back-btn" onclick="closeProductoDetail()">←</button>
@@ -1028,7 +514,6 @@
         <div class="producto-detail-content" id="productoDetailContent"></div>
     </div>
 
-    <!-- Modal de cobro -->
     <div class="modal-overlay" id="cobroModal">
         <div class="modal-content">
             <div class="modal-title">Importe cobrado</div>
@@ -1040,827 +525,363 @@
         </div>
     </div>
 
-    <!-- Input para cámara -->
     <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
 
-    <!-- Vista de Login -->
     <div class="login-view active" id="loginView">
         <div class="login-container">
             <div class="login-logo">
                 <div class="login-icon">🚚</div>
                 <h1>VIVES Reparto</h1>
-                <p>Selecciona tu usuario</p>
+                <p>Introduce tu email</p>
             </div>
-            
-            <div class="login-buttons" id="loginButtons">
-                <button class="login-btn admin" onclick="handleLogin('ADMIN')">
-                    <span class="login-btn-icon">👔</span>
-                    <span class="login-btn-text">Administrador</span>
-                </button>
-                <button class="login-btn equipo" onclick="handleLogin('EQ.1')">
-                    <span class="login-btn-icon">🚛</span>
-                    <span class="login-btn-text">Equipo 1</span>
-                </button>
-                <button class="login-btn equipo" onclick="handleLogin('EQ.2')">
-                    <span class="login-btn-icon">🚛</span>
-                    <span class="login-btn-text">Equipo 2</span>
-                </button>
+            <div class="login-step" id="stepEmail">
+                <input type="email" id="emailInput" class="login-input" placeholder="tu@email.com" onkeypress="if(event.key==='Enter')solicitarPIN()">
+                <button class="login-submit-btn" onclick="solicitarPIN()" id="btnSolicitarPIN">Enviar código</button>
+                <p class="login-info">Te enviaremos un código de acceso</p>
             </div>
-
-            <div class="password-section" id="passwordSection">
-                <input type="hidden" id="selectedUser">
-                <p class="password-label" id="passwordLabel">Introduce la contraseña</p>
-                <input type="password" id="passwordInput" class="password-input" placeholder="Contraseña" 
-                       onkeypress="if(event.key==='Enter')submitPassword()">
-                <div class="password-buttons">
-                    <button class="password-btn cancel" onclick="cancelPassword()">Cancelar</button>
-                    <button class="password-btn submit" onclick="submitPassword()">Entrar</button>
-                </div>
+            <div class="login-step" id="stepPIN" style="display:none;">
+                <p class="login-email-sent">Código enviado a <strong id="emailEnviado"></strong></p>
+                <input type="tel" id="pinInput" class="login-input pin-input" placeholder="000000" maxlength="6" onkeypress="if(event.key==='Enter')verificarPIN()">
+                <button class="login-submit-btn" onclick="verificarPIN()" id="btnVerificarPIN">Verificar código</button>
+                <button class="login-back-btn" onclick="volverAEmail()">← Cambiar email</button>
             </div>
+            <p class="login-error" id="loginError"></p>
         </div>
     </div>
 
-    <!-- SheetJS para leer Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
     <script>
-        // ========================================
-        // CONFIGURACIÓN DE USUARIOS
-        // ========================================
-        const USUARIOS = {
-            'ADMIN': { password: 'vives2025', rol: 'admin', nombre: 'Administrador', pin: false },
-            'EQ.1': { password: '1111', rol: 'repartidor', nombre: 'Equipo 1', pin: true },
-            'EQ.2': { password: '2222', rol: 'repartidor', nombre: 'Equipo 2', pin: true }
-        };
+        const WEBHOOK_AUTH = 'https://n8n-n8n.qhekde.easypanel.host/webhook/auth-reparto';
+        const WEBHOOK_VERIFICAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/verificar-pin';
 
-        // Opciones de estado de pago: ? = por determinar, ✓ = pagado, € = por cobrar
         const ESTADOS_PAGO = ['?', '✓', '€'];
-        
-        // Opciones de almacén
         const ALMACENES = ['?', 'A', 'R', 'T', 'C'];
         const ALMACEN_NOMBRES = { '?': 'Por definir', 'A': 'Almacén', 'R': 'Reservas', 'T': 'Tienda', 'C': 'Celsa' };
-        
-        // Opciones de quién entrega
         const REPARTIDORES_ENTREGA = ['EQ', 'A', 'S'];
-        const REPARTIDOR_NOMBRES = { 'EQ': 'Equipo', 'A': 'Andoni', 'S': 'Segis' };
 
-        // ========================================
-        // ESTADO DE LA APLICACIÓN
-        // ========================================
-        let appData = {
-            entregas: [],
-            articulos: [],
-            repartidores: [],
-            repartidorActual: 'TODOS',
-            tabActual: 'reparto',
-            fecha: null,
-            entregaSeleccionada: null,
-            productoSeleccionado: null,
-            pendingChanges: [],
-            usuarioActual: null,
-            entregaParaCobro: null
-        };
-
-        // ========================================
-        // ICONOS SVG
-        // ========================================
         const SVG_EQUIPO = `<svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`;
-        
         const SVG_PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
-        
         const SVG_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
-        
         const SVG_CAMERA = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`;
-        
         const SVG_ERASER = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l9-9 8 8-4 4z"/><path d="M6.5 13.5L12 8"/></svg>`;
-        
         const SVG_MONEY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`;
 
-        // ========================================
-        // FUNCIONES DE AUTENTICACIÓN
-        // ========================================
-        function isAdmin() {
-            return appData.usuarioActual && USUARIOS[appData.usuarioActual]?.rol === 'admin';
+        let appData = {
+            entregas: [], articulos: [], repartidores: [],
+            repartidorActual: 'TODOS', tabActual: 'reparto', fecha: null,
+            entregaSeleccionada: null, productoSeleccionado: null,
+            pendingChanges: [], usuarioActual: null, emailActual: null,
+            rolActual: null, entregaParaCobro: null
+        };
+
+        function isAdmin() { return appData.rolActual === 'admin'; }
+        function puedeEditarPago() { return isAdmin(); }
+        function puedeEditarAlmacen() { return isAdmin(); }
+
+        async function solicitarPIN() {
+            const email = document.getElementById('emailInput').value.trim().toLowerCase();
+            if (!email || !email.includes('@')) { mostrarError('Introduce un email válido'); return; }
+            const btn = document.getElementById('btnSolicitarPIN');
+            btn.disabled = true; btn.textContent = 'Enviando...'; mostrarError('');
+            try {
+                const response = await fetch(WEBHOOK_AUTH, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+                const data = await response.json();
+                if (data.ok) {
+                    document.getElementById('emailEnviado').textContent = email;
+                    document.getElementById('stepEmail').style.display = 'none';
+                    document.getElementById('stepPIN').style.display = 'flex';
+                    document.getElementById('pinInput').focus();
+                    appData.emailActual = email;
+                } else { mostrarError(data.error || 'Email no autorizado'); }
+            } catch (e) { mostrarError('Error de conexión'); }
+            btn.disabled = false; btn.textContent = 'Enviar código';
         }
 
-        function puedeEditarPago() {
-            return isAdmin();
+        async function verificarPIN() {
+            const pin = document.getElementById('pinInput').value.trim();
+            if (!pin || pin.length !== 6) { mostrarError('Introduce el código de 6 dígitos'); return; }
+            const btn = document.getElementById('btnVerificarPIN');
+            btn.disabled = true; btn.textContent = 'Verificando...'; mostrarError('');
+            try {
+                const response = await fetch(WEBHOOK_VERIFICAR, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: appData.emailActual, pin }) });
+                const data = await response.json();
+                if (data.ok) {
+                    appData.usuarioActual = data.email; appData.emailActual = data.email; appData.rolActual = data.rol;
+                    localStorage.setItem('vivesRepartoSession', JSON.stringify({ email: data.email, rol: data.rol }));
+                    hideLogin(); renderApp();
+                } else { mostrarError(data.error || 'PIN incorrecto'); }
+            } catch (e) { mostrarError('Error de conexión'); }
+            btn.disabled = false; btn.textContent = 'Verificar código';
         }
 
-        function puedeEditarAlmacen() {
-            return isAdmin();
+        function volverAEmail() {
+            document.getElementById('stepPIN').style.display = 'none';
+            document.getElementById('stepEmail').style.display = 'flex';
+            document.getElementById('pinInput').value = ''; mostrarError('');
         }
 
-        function puedeEditarRepartidor() {
-            return true; // Todos pueden cambiar quién entrega
-        }
-
-        function login(usuario, password = null) {
-            const user = USUARIOS[usuario];
-            if (!user) {
-                alert('Usuario no válido');
-                return false;
-            }
-            
-            if (user.password && user.password !== password) {
-                alert(user.pin ? 'PIN incorrecto' : 'Contraseña incorrecta');
-                return false;
-            }
-            
-            appData.usuarioActual = usuario;
-            localStorage.setItem('vivesRepartoUser', usuario);
-            hideLogin();
-            renderApp();
-            return true;
-        }
+        function mostrarError(msg) { document.getElementById('loginError').textContent = msg; }
 
         function logout() {
-            appData.usuarioActual = null;
-            appData.entregas = [];
-            appData.articulos = [];
-            localStorage.removeItem('vivesRepartoUser');
-            showLogin();
+            appData.usuarioActual = null; appData.emailActual = null; appData.rolActual = null;
+            appData.entregas = []; appData.articulos = [];
+            localStorage.removeItem('vivesRepartoSession');
+            document.getElementById('emailInput').value = '';
+            document.getElementById('pinInput').value = '';
+            document.getElementById('stepPIN').style.display = 'none';
+            document.getElementById('stepEmail').style.display = 'flex';
+            mostrarError(''); showLogin();
         }
 
-        function showLogin() {
-            document.getElementById('loginView').classList.add('active');
-            document.getElementById('passwordSection').classList.remove('active');
-        }
+        function showLogin() { document.getElementById('loginView').classList.add('active'); }
+        function hideLogin() { document.getElementById('loginView').classList.remove('active'); }
 
-        function hideLogin() {
-            document.getElementById('loginView').classList.remove('active');
-        }
-
-        function handleLogin(usuario) {
-            const user = USUARIOS[usuario];
-            document.getElementById('passwordSection').classList.add('active');
-            document.getElementById('selectedUser').value = usuario;
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordInput').placeholder = user.pin ? 'PIN (4 dígitos)' : 'Contraseña';
-            document.getElementById('passwordInput').type = user.pin ? 'tel' : 'password';
-            document.getElementById('passwordInput').maxLength = user.pin ? 4 : 50;
-            document.getElementById('passwordLabel').textContent = user.pin ? 
-                `Introduce el PIN de ${usuario}` : 
-                'Introduce la contraseña de administrador';
-            setTimeout(() => document.getElementById('passwordInput').focus(), 100);
-        }
-
-        function submitPassword() {
-            const usuario = document.getElementById('selectedUser').value;
-            const password = document.getElementById('passwordInput').value;
-            if (login(usuario, password)) {
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('passwordSection').classList.remove('active');
+        function cargarSesion() {
+            const session = localStorage.getItem('vivesRepartoSession');
+            if (session) {
+                const data = JSON.parse(session);
+                appData.usuarioActual = data.email; appData.emailActual = data.email; appData.rolActual = data.rol;
+                return true;
             }
+            return false;
         }
 
-        function cancelPassword() {
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordSection').classList.remove('active');
-        }
-
-        // ========================================
-        // ALMACENAMIENTO LOCAL
-        // ========================================
         function saveToLocal() {
-            const configToSave = {
-                repartidorActual: appData.repartidorActual,
-                tabActual: appData.tabActual,
-                pendingChanges: appData.pendingChanges
-            };
-            localStorage.setItem('vivesRepartoConfig', JSON.stringify(configToSave));
+            localStorage.setItem('vivesRepartoConfig', JSON.stringify({
+                repartidorActual: appData.repartidorActual, tabActual: appData.tabActual, pendingChanges: appData.pendingChanges
+            }));
         }
 
         function loadFromLocal() {
-            const savedUser = localStorage.getItem('vivesRepartoUser');
-            if (savedUser && USUARIOS[savedUser]) {
-                appData.usuarioActual = savedUser;
+            cargarSesion();
+            const config = localStorage.getItem('vivesRepartoConfig');
+            if (config) {
+                const c = JSON.parse(config);
+                appData.repartidorActual = c.repartidorActual || 'TODOS';
+                appData.tabActual = c.tabActual || 'reparto';
+                appData.pendingChanges = c.pendingChanges || [];
             }
-            
-            const savedConfig = localStorage.getItem('vivesRepartoConfig');
-            if (savedConfig) {
-                const config = JSON.parse(savedConfig);
-                appData.repartidorActual = config.repartidorActual || 'TODOS';
-                appData.tabActual = config.tabActual || 'reparto';
-                appData.pendingChanges = config.pendingChanges || [];
-            }
-            
             return appData.usuarioActual !== null;
         }
 
         function savePendingChange(change) {
-            appData.pendingChanges.push({
-                ...change,
-                timestamp: new Date().toISOString()
-            });
-            saveToLocal();
-            updateSyncIndicator();
+            appData.pendingChanges.push({ ...change, timestamp: new Date().toISOString() });
+            saveToLocal(); updateSyncIndicator();
         }
 
         function updateSyncIndicator() {
-            const indicator = document.getElementById('syncIndicator');
-            if (appData.pendingChanges.length > 0) {
-                indicator.classList.add('visible');
-                indicator.textContent = `⏳ ${appData.pendingChanges.length} cambio(s) pendiente(s)`;
-            } else {
-                indicator.classList.remove('visible');
-            }
-        }
-
-        // ========================================
-        // UTILIDADES
-        // ========================================
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const parts = dateStr.split('/');
-            if (parts.length === 3) {
-                return `${parts[0]}/${parts[1]}/${parts[2]}`;
-            }
-            return dateStr;
+            const ind = document.getElementById('syncIndicator');
+            if (appData.pendingChanges.length > 0) { ind.classList.add('visible'); ind.textContent = `⏳ ${appData.pendingChanges.length} cambio(s)`; }
+            else { ind.classList.remove('visible'); }
         }
 
         function formatPhone(phone) {
             if (!phone) return null;
             let str = String(phone).replace(/[^0-9+]/g, '');
-            if (phone > 1000000000) {
-                str = Math.round(phone).toString();
-            }
-            if (str.length < 9) return null;
-            return str;
+            if (phone > 1000000000) str = Math.round(phone).toString();
+            return str.length >= 9 ? str : null;
         }
 
         function getWhatsAppLink(phone) {
             let num = formatPhone(phone);
             if (!num) return null;
-            if (!num.startsWith('+') && !num.startsWith('34')) {
-                num = '34' + num;
-            }
+            if (!num.startsWith('+') && !num.startsWith('34')) num = '34' + num;
             return `https://wa.me/${num.replace(/[^0-9]/g, '')}`;
         }
 
-        function getMapsLink(direccion, poblacion, cp) {
-            const query = `${direccion}, ${poblacion} ${cp}`;
-            return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-        }
+        function getMapsLink(dir, pob, cp) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir + ', ' + pob + ' ' + cp)}`; }
+        function getEstadoPagoClass(estado) { return estado === '✓' ? 'pagado' : estado === '€' ? 'cobrar' : 'indefinido'; }
 
-        function getEstadoPagoClass(estado) {
-            if (estado === '✓') return 'pagado';
-            if (estado === '€') return 'cobrar';
-            return 'indefinido';
-        }
-
-        function getRepartidorIcon(repartidor) {
-            if (repartidor === 'EQ') return SVG_EQUIPO;
-            return repartidor;
-        }
-
-        // ========================================
-        // PROCESAMIENTO DE DATOS
-        // ========================================
         function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    
-                    const repartoSheetName = workbook.SheetNames.find(n => 
-                        n.toLowerCase().includes('reparto') || n === workbook.SheetNames[0]
-                    );
-                    const listaSheetName = workbook.SheetNames.find(n => 
-                        n.toLowerCase().includes('lista') || n.toLowerCase().includes('articulo') || n === workbook.SheetNames[1]
-                    );
-                    
-                    const repartoData = XLSX.utils.sheet_to_json(workbook.Sheets[repartoSheetName]);
-                    const listaData = listaSheetName ? XLSX.utils.sheet_to_json(workbook.Sheets[listaSheetName]) : [];
-                    
-                    processData(repartoData, listaData);
-                } catch (error) {
-                    console.error('Error procesando archivo:', error);
-                    alert('Error al leer el archivo.');
-                }
+                    const wb = XLSX.read(data, { type: 'array' });
+                    const repSheet = wb.SheetNames.find(n => n.toLowerCase().includes('reparto')) || wb.SheetNames[0];
+                    const listSheet = wb.SheetNames.find(n => n.toLowerCase().includes('lista') || n.toLowerCase().includes('articulo')) || wb.SheetNames[1];
+                    const repData = XLSX.utils.sheet_to_json(wb.Sheets[repSheet]);
+                    const listData = listSheet ? XLSX.utils.sheet_to_json(wb.Sheets[listSheet]) : [];
+                    processData(repData, listData);
+                } catch (err) { alert('Error al leer archivo'); }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function processData(repartoData, listaData) {
-            appData.entregas = repartoData.map((row, index) => ({
-                id: `entrega_${index}`,
-                repartidor: row['REPARTIDOR'] || 'Sin asignar',
-                dia: row['DIA'],
-                hora: row['HORA'] || '',
-                documento: row['DOCUMENTO'],
-                cliente: row['CLIENTE'],
-                direccion: row['DIRECCION'],
-                poblacion: row['POBLACION'],
-                cp: row['C.P.'] || row['CP'],
-                vendedor: row['VENDEDOR'],
-                observaciones: row['OBSERVACIONES'] || '',
-                telefonos: [
-                    formatPhone(row['Tel1'] || row['TEL1']),
-                    formatPhone(row['Tel2'] || row['TEL2']),
-                    formatPhone(row['Tel3'] || row['TEL3'])
-                ].filter(t => t),
-                estadoPago: '?', // Por defecto: por determinar
-                quienEntrega: 'EQ', // Por defecto: Equipo
-                estado: row['ESTADO'] || 'PENDIENTE',
-                notas: row['NOTAS_REPARTO'] || '',
-                importeCobrado: null
+        function processData(repData, listData) {
+            appData.entregas = repData.map((r, i) => ({
+                id: `e_${i}`, repartidor: r['REPARTIDOR'] || 'Sin asignar', dia: r['DIA'], hora: r['HORA'] || '',
+                documento: r['DOCUMENTO'], cliente: r['CLIENTE'], direccion: r['DIRECCION'], poblacion: r['POBLACION'],
+                cp: r['C.P.'] || r['CP'], vendedor: r['VENDEDOR'], observaciones: r['OBSERVACIONES'] || '',
+                telefonos: [formatPhone(r['Tel1'] || r['TEL1']), formatPhone(r['Tel2'] || r['TEL2']), formatPhone(r['Tel3'] || r['TEL3'])].filter(t => t),
+                estadoPago: '?', quienEntrega: 'EQ', estado: 'PENDIENTE', notas: '', importeCobrado: null
             }));
-
-            appData.articulos = listaData.map((row, index) => ({
-                id: `articulo_${index}`,
-                documento: row['DOCUMENTO'],
-                codigo: row['CÓDIGO'] || row['CODIGO'],
-                articulo: row['ARTÍCULO'] || row['ARTICULO'],
-                cantidad: row['CANTIDAD'] || 1,
-                almacen: '?', // Por defecto: por determinar
-                fotoSerie: row['FOTO_SERIE'] || null,
-                fotoLocal: null
+            appData.articulos = listData.map((r, i) => ({
+                id: `a_${i}`, documento: r['DOCUMENTO'], codigo: r['CÓDIGO'] || r['CODIGO'],
+                articulo: r['ARTÍCULO'] || r['ARTICULO'], cantidad: r['CANTIDAD'] || 1, almacen: '?', fotoLocal: null
             }));
-
-            appData.repartidores = ['TODOS', ...new Set(appData.entregas.map(e => e.repartidor))].filter(r => r);
-            
-            if (appData.entregas.length > 0) {
-                appData.fecha = appData.entregas[0].dia;
-            }
-
-            saveToLocal();
-            renderApp();
+            appData.repartidores = ['TODOS', ...new Set(appData.entregas.map(e => e.repartidor))];
+            if (appData.entregas.length > 0) appData.fecha = appData.entregas[0].dia;
+            saveToLocal(); renderApp();
         }
 
-        // ========================================
-        // ACCIONES
-        // ========================================
-        function toggleEstadoPago(entregaId, event) {
-            if (event) event.stopPropagation();
-            if (!puedeEditarPago()) return;
-            
-            const entrega = appData.entregas.find(e => e.id === entregaId);
-            if (entrega) {
-                const idx = ESTADOS_PAGO.indexOf(entrega.estadoPago);
-                entrega.estadoPago = ESTADOS_PAGO[(idx + 1) % ESTADOS_PAGO.length];
-                savePendingChange({
-                    type: 'estadoPago',
-                    documento: entrega.documento,
-                    value: entrega.estadoPago
-                });
-                saveToLocal();
-                renderApp();
-                if (appData.entregaSeleccionada) renderDetail();
-            }
+        function toggleEstadoPago(id, ev) {
+            if (ev) ev.stopPropagation(); if (!puedeEditarPago()) return;
+            const e = appData.entregas.find(x => x.id === id); if (!e) return;
+            const idx = ESTADOS_PAGO.indexOf(e.estadoPago);
+            e.estadoPago = ESTADOS_PAGO[(idx + 1) % ESTADOS_PAGO.length];
+            savePendingChange({ type: 'estadoPago', documento: e.documento, value: e.estadoPago });
+            saveToLocal(); renderApp(); if (appData.entregaSeleccionada) renderDetail();
         }
 
-        function toggleQuienEntrega(entregaId, event) {
-            if (event) event.stopPropagation();
-            
-            const entrega = appData.entregas.find(e => e.id === entregaId);
-            if (entrega) {
-                const idx = REPARTIDORES_ENTREGA.indexOf(entrega.quienEntrega);
-                entrega.quienEntrega = REPARTIDORES_ENTREGA[(idx + 1) % REPARTIDORES_ENTREGA.length];
-                savePendingChange({
-                    type: 'quienEntrega',
-                    documento: entrega.documento,
-                    value: entrega.quienEntrega
-                });
-                saveToLocal();
-                renderApp();
-                if (appData.entregaSeleccionada) renderDetail();
-            }
+        function toggleQuienEntrega(id, ev) {
+            if (ev) ev.stopPropagation();
+            const e = appData.entregas.find(x => x.id === id); if (!e) return;
+            const idx = REPARTIDORES_ENTREGA.indexOf(e.quienEntrega);
+            e.quienEntrega = REPARTIDORES_ENTREGA[(idx + 1) % REPARTIDORES_ENTREGA.length];
+            savePendingChange({ type: 'quienEntrega', documento: e.documento, value: e.quienEntrega });
+            saveToLocal(); renderApp(); if (appData.entregaSeleccionada) renderDetail();
         }
 
-        function cambiarAlmacen(articuloId, nuevoAlmacen) {
+        function cambiarAlmacen(id, alm) {
             if (!puedeEditarAlmacen()) return;
-            
-            const articulo = appData.articulos.find(a => a.id === articuloId);
-            if (articulo) {
-                articulo.almacen = nuevoAlmacen;
-                savePendingChange({
-                    type: 'almacen',
-                    documento: articulo.documento,
-                    codigo: articulo.codigo,
-                    value: nuevoAlmacen
-                });
-                saveToLocal();
-                renderProductoDetail();
-                renderDetail();
-            }
+            const a = appData.articulos.find(x => x.id === id); if (!a) return;
+            a.almacen = alm;
+            savePendingChange({ type: 'almacen', documento: a.documento, codigo: a.codigo, value: alm });
+            saveToLocal(); renderProductoDetail(); renderDetail();
         }
 
-        function cambiarQuienEntregaDirecto(entregaId, valor) {
-            const entrega = appData.entregas.find(e => e.id === entregaId);
-            if (entrega) {
-                entrega.quienEntrega = valor;
-                savePendingChange({
-                    type: 'quienEntrega',
-                    documento: entrega.documento,
-                    value: valor
-                });
-                saveToLocal();
-                renderDetail();
-            }
+        function marcarTerminado(id) {
+            const e = appData.entregas.find(x => x.id === id); if (!e) return;
+            e.estado = 'TERMINADO';
+            savePendingChange({ type: 'estado', documento: e.documento, value: 'TERMINADO' });
+            saveToLocal(); closeDetail(); renderApp();
         }
 
-        function marcarTerminado(entregaId) {
-            const entrega = appData.entregas.find(e => e.id === entregaId);
-            if (entrega) {
-                entrega.estado = 'TERMINADO';
-                savePendingChange({
-                    type: 'estado',
-                    documento: entrega.documento,
-                    value: 'TERMINADO'
-                });
-                saveToLocal();
-                closeDetail();
-                renderApp();
-            }
+        function guardarNotas(id, notas) {
+            const e = appData.entregas.find(x => x.id === id); if (!e) return;
+            e.notas = notas;
+            savePendingChange({ type: 'notas', documento: e.documento, value: notas });
+            saveToLocal();
         }
 
-        function guardarNotas(entregaId, notas) {
-            const entrega = appData.entregas.find(e => e.id === entregaId);
-            if (entrega) {
-                entrega.notas = notas;
-                savePendingChange({
-                    type: 'notas',
-                    documento: entrega.documento,
-                    value: notas
-                });
-                saveToLocal();
-            }
-        }
-
-        // ========================================
-        // COBRO
-        // ========================================
-        function abrirModalCobro(entregaId) {
-            appData.entregaParaCobro = entregaId;
-            const entrega = appData.entregas.find(e => e.id === entregaId);
-            document.getElementById('cobroInput').value = entrega?.importeCobrado || '';
+        function abrirModalCobro(id) {
+            appData.entregaParaCobro = id;
+            const e = appData.entregas.find(x => x.id === id);
+            document.getElementById('cobroInput').value = e?.importeCobrado || '';
             document.getElementById('cobroModal').classList.add('active');
             document.getElementById('cobroInput').focus();
         }
 
-        function cerrarModalCobro() {
-            document.getElementById('cobroModal').classList.remove('active');
-            appData.entregaParaCobro = null;
-        }
+        function cerrarModalCobro() { document.getElementById('cobroModal').classList.remove('active'); appData.entregaParaCobro = null; }
 
         function confirmarCobro() {
-            const importe = parseFloat(document.getElementById('cobroInput').value) || 0;
-            const entrega = appData.entregas.find(e => e.id === appData.entregaParaCobro);
-            if (entrega) {
-                entrega.importeCobrado = importe;
-                savePendingChange({
-                    type: 'importeCobrado',
-                    documento: entrega.documento,
-                    value: importe
-                });
-                saveToLocal();
-                renderDetail();
-            }
-            cerrarModalCobro();
+            const imp = parseFloat(document.getElementById('cobroInput').value) || 0;
+            const e = appData.entregas.find(x => x.id === appData.entregaParaCobro); if (!e) return;
+            e.importeCobrado = imp;
+            savePendingChange({ type: 'importeCobrado', documento: e.documento, value: imp });
+            saveToLocal(); renderDetail(); cerrarModalCobro();
         }
 
-        // ========================================
-        // FOTOS
-        // ========================================
         let fotoArticuloActual = null;
-
-        function tomarFoto(articuloId) {
-            fotoArticuloActual = articuloId;
-            document.getElementById('cameraInput').click();
-        }
-
-        function handlePhoto(event) {
-            const file = event.target.files[0];
-            if (!file || !fotoArticuloActual) return;
-
+        function tomarFoto(id) { fotoArticuloActual = id; document.getElementById('cameraInput').click(); }
+        function handlePhoto(ev) {
+            const file = ev.target.files[0]; if (!file || !fotoArticuloActual) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                const articulo = appData.articulos.find(a => a.id === fotoArticuloActual);
-                if (articulo) {
-                    articulo.fotoLocal = e.target.result;
-                    savePendingChange({
-                        type: 'foto',
-                        documento: articulo.documento,
-                        codigo: articulo.codigo,
-                        value: 'foto_tomada'
-                    });
-                    saveToLocal();
-                    renderProductoDetail();
-                }
+                const a = appData.articulos.find(x => x.id === fotoArticuloActual); if (!a) return;
+                a.fotoLocal = e.target.result;
+                savePendingChange({ type: 'foto', documento: a.documento, codigo: a.codigo, value: 'foto' });
+                saveToLocal(); renderProductoDetail();
             };
             reader.readAsDataURL(file);
         }
-
-        function borrarFoto(articuloId) {
-            const articulo = appData.articulos.find(a => a.id === articuloId);
-            if (articulo) {
-                articulo.fotoLocal = null;
-                articulo.fotoSerie = null;
-                saveToLocal();
-                renderProductoDetail();
-            }
+        function borrarFoto(id) {
+            const a = appData.articulos.find(x => x.id === id); if (!a) return;
+            a.fotoLocal = null; saveToLocal(); renderProductoDetail();
         }
 
-        // ========================================
-        // RENDERIZADO
-        // ========================================
         function renderApp() {
-            document.getElementById('headerDate').textContent = formatDate(appData.fecha);
-            
-            if (appData.usuarioActual) {
-                const user = USUARIOS[appData.usuarioActual];
-                document.getElementById('userBadgeIcon').textContent = isAdmin() ? '👔' : '🚛';
-                document.getElementById('userBadgeName').textContent = appData.usuarioActual;
-            }
-            
-            document.getElementById('filterBar').innerHTML = appData.repartidores.map(rep => 
-                `<button class="filter-btn ${rep === appData.repartidorActual ? 'active' : ''}" 
-                         onclick="selectRepartidor('${rep}')">${rep}</button>`
-            ).join('');
-
-            renderMainContent();
-            updateTabBadges();
-            updateSyncIndicator();
+            document.getElementById('headerDate').textContent = appData.fecha || new Date().toLocaleDateString('es-ES');
+            if (appData.usuarioActual) document.getElementById('userBadgeName').textContent = appData.emailActual;
+            document.getElementById('filterBar').innerHTML = appData.repartidores.map(r => `<button class="filter-btn ${r === appData.repartidorActual ? 'active' : ''}" onclick="selectRepartidor('${r}')">${r}</button>`).join('');
+            renderMainContent(); updateTabBadges(); updateSyncIndicator();
         }
 
         function renderMainContent() {
-            const container = document.getElementById('mainContent');
-            
+            const c = document.getElementById('mainContent');
             let entregas = appData.entregas.filter(e => {
-                const matchRepartidor = appData.repartidorActual === 'TODOS' || e.repartidor === appData.repartidorActual;
-                const matchTab = appData.tabActual === 'reparto' ? e.estado !== 'TERMINADO' : e.estado === 'TERMINADO';
-                return matchRepartidor && matchTab;
+                const mR = appData.repartidorActual === 'TODOS' || e.repartidor === appData.repartidorActual;
+                const mT = appData.tabActual === 'reparto' ? e.estado !== 'TERMINADO' : e.estado === 'TERMINADO';
+                return mR && mT;
             });
-
-            if (appData.tabActual === 'servicios' || appData.tabActual === 'carrito') {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        <p>Próximamente</p>
-                    </div>
-                `;
-                return;
-            }
-
-            if (entregas.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <p>${appData.tabActual === 'reparto' ? 'No hay entregas pendientes' : 'No hay entregas terminadas'}</p>
-                    </div>
-                `;
-                return;
-            }
-
-            entregas.sort((a, b) => {
-                const horaA = (a.hora || '').split(' - ')[0] || '99:99';
-                const horaB = (b.hora || '').split(' - ')[0] || '99:99';
-                return horaA.localeCompare(horaB);
-            });
-
-            const grupos = {};
-            entregas.forEach(e => {
-                const hora = e.hora || 'Sin hora';
-                if (!grupos[hora]) grupos[hora] = [];
-                grupos[hora].push(e);
-            });
-
-            let html = '';
-            Object.entries(grupos).forEach(([hora, items]) => {
-                html += `
-                    <div class="time-group">
-                        <div class="time-header">${hora}</div>
-                        ${items.map(e => renderEntregaCard(e)).join('')}
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
+            if (appData.tabActual === 'servicios' || appData.tabActual === 'carrito') { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg><p>Próximamente</p></div>`; return; }
+            if (entregas.length === 0) { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>${appData.tabActual === 'reparto' ? 'No hay entregas pendientes' : 'No hay entregas terminadas'}</p></div>`; return; }
+            entregas.sort((a, b) => ((a.hora || '').split(' - ')[0] || '99').localeCompare((b.hora || '').split(' - ')[0] || '99'));
+            const grupos = {}; entregas.forEach(e => { const h = e.hora || 'Sin hora'; if (!grupos[h]) grupos[h] = []; grupos[h].push(e); });
+            let html = ''; Object.entries(grupos).forEach(([h, items]) => { html += `<div class="time-group"><div class="time-header">${h}</div>${items.map(e => renderEntregaCard(e)).join('')}</div>`; });
+            c.innerHTML = html;
         }
 
-        function renderEntregaCard(entrega) {
-            const obsPreview = entrega.observaciones ? 
-                entrega.observaciones.substring(0, 60) + (entrega.observaciones.length > 60 ? '...' : '') : '';
-            
-            const canEditPago = puedeEditarPago();
-            const estadoClass = getEstadoPagoClass(entrega.estadoPago);
-            const repartidorIcon = getRepartidorIcon(entrega.quienEntrega);
-            
-            return `
-                <div class="entrega-card">
-                    <div class="entrega-row" onclick="openDetail('${entrega.id}')">
-                        <div class="status-icon ${estadoClass}" 
-                             ${canEditPago ? `onclick="toggleEstadoPago('${entrega.id}', event)"` : ''}
-                             style="${canEditPago ? '' : 'cursor: default;'}">
-                            ${entrega.estadoPago}
-                        </div>
-                        <div class="entrega-info">
-                            <div class="cliente-nombre">${entrega.cliente}</div>
-                            <div class="cliente-direccion">${entrega.direccion}</div>
-                            <div class="cliente-vendedor">${entrega.documento} - ${entrega.vendedor}</div>
-                            ${obsPreview ? `<div class="observaciones-preview">${obsPreview}</div>` : ''}
-                        </div>
-                        <div class="repartidor-icon" onclick="toggleQuienEntrega('${entrega.id}', event)">
-                            ${entrega.quienEntrega === 'EQ' ? SVG_EQUIPO : entrega.quienEntrega}
-                        </div>
-                        <div class="arrow-icon">›</div>
-                    </div>
-                </div>
-            `;
+        function renderEntregaCard(e) {
+            const obs = e.observaciones ? e.observaciones.substring(0, 60) + (e.observaciones.length > 60 ? '...' : '') : '';
+            const canEdit = puedeEditarPago();
+            return `<div class="entrega-card"><div class="entrega-row" onclick="openDetail('${e.id}')">
+                <div class="status-icon ${getEstadoPagoClass(e.estadoPago)}" ${canEdit ? `onclick="toggleEstadoPago('${e.id}', event)"` : ''} style="${canEdit ? '' : 'cursor:default'}">${e.estadoPago}</div>
+                <div class="entrega-info"><div class="cliente-nombre">${e.cliente}</div><div class="cliente-direccion">${e.direccion}</div><div class="cliente-vendedor">${e.documento} - ${e.vendedor}</div>${obs ? `<div class="observaciones-preview">${obs}</div>` : ''}</div>
+                <div class="repartidor-icon" onclick="toggleQuienEntrega('${e.id}', event)">${e.quienEntrega === 'EQ' ? SVG_EQUIPO : e.quienEntrega}</div>
+                <div class="arrow-icon">›</div></div></div>`;
         }
 
         function updateTabBadges() {
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            const tabId = `tab${appData.tabActual.charAt(0).toUpperCase() + appData.tabActual.slice(1)}`;
-            document.getElementById(tabId)?.classList.add('active');
+            document.getElementById(`tab${appData.tabActual.charAt(0).toUpperCase() + appData.tabActual.slice(1)}`)?.classList.add('active');
         }
 
-        // ========================================
-        // VISTA DE DETALLE
-        // ========================================
-        function openDetail(entregaId) {
-            appData.entregaSeleccionada = entregaId;
-            renderDetail();
-            document.getElementById('detailView').classList.add('active');
-        }
-
-        function closeDetail() {
-            document.getElementById('detailView').classList.remove('active');
-            appData.entregaSeleccionada = null;
-        }
+        function openDetail(id) { appData.entregaSeleccionada = id; renderDetail(); document.getElementById('detailView').classList.add('active'); }
+        function closeDetail() { document.getElementById('detailView').classList.remove('active'); appData.entregaSeleccionada = null; }
 
         function renderDetail() {
-            const entrega = appData.entregas.find(e => e.id === appData.entregaSeleccionada);
-            if (!entrega) return;
-
-            document.getElementById('detailHeaderText').textContent = entrega.hora;
-
-            const articulos = appData.articulos.filter(a => a.documento === entrega.documento);
-            const telefono = entrega.telefonos[0] || '';
-            const canEditPago = puedeEditarPago();
-            const mapsLink = getMapsLink(entrega.direccion, entrega.poblacion, entrega.cp);
-            const waLink = telefono ? getWhatsAppLink(telefono) : null;
-
-            let html = `
-                <div class="detail-location">
-                    <div class="detail-zona">${entrega.poblacion} ${entrega.cp}</div>
-                    <div class="detail-direccion" onclick="window.open('${mapsLink}', '_blank')">${entrega.direccion}</div>
-                    <div class="detail-cliente">${entrega.cliente}</div>
-                    ${telefono ? `<div class="detail-telefono" onclick="window.location.href='tel:${telefono}'">Tel: ${telefono}</div>` : ''}
-                    <div class="detail-vendedor">Vendedor: ${entrega.vendedor}</div>
-                </div>
-
-                ${waLink ? `
-                    <a href="${waLink}" target="_blank" class="btn-glide">
-                        ${SVG_PHONE}
-                        Whatsapp
-                    </a>
-                ` : ''}
-
-                ${articulos.map(a => `
-                    <div class="producto-card" onclick="openProductoDetail('${a.id}')">
-                        <div class="producto-header">
-                            <div class="producto-almacen-icon ${a.almacen === '?' ? 'indefinido' : ''}">${a.almacen}</div>
-                            <div class="producto-info-row">
-                                <div class="producto-qty">${a.cantidad}x</div>
-                                <div class="producto-nombre">${a.articulo}</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-
-                ${(entrega.estadoPago === '€' || entrega.estadoPago === '?') ? `
-                    <button class="btn-glide" onclick="abrirModalCobro('${entrega.id}')">
-                        ${SVG_MONEY}
-                        Cobrar
-                    </button>
-                ` : ''}
-
-                ${entrega.importeCobrado ? `
-                    <div class="importe-cobrado">
-                        <span>Importe cobrado:</span>
-                        <strong>${entrega.importeCobrado.toFixed(2)} €</strong>
-                    </div>
-                ` : ''}
-
-                ${entrega.observaciones ? `
-                    <div class="observaciones-box">${entrega.observaciones}</div>
-                ` : ''}
-
-                <div class="notas-section">
-                    <div class="notas-label">Notas</div>
-                    <textarea class="notas-input" 
-                              placeholder="Añadir notas..."
-                              onchange="guardarNotas('${entrega.id}', this.value)">${entrega.notas || ''}</textarea>
-                </div>
-
-                <button class="btn-glide" onclick="marcarTerminado('${entrega.id}')">
-                    ${SVG_CHECK}
-                    Terminado
-                </button>
-            `;
-
+            const e = appData.entregas.find(x => x.id === appData.entregaSeleccionada); if (!e) return;
+            document.getElementById('detailHeaderText').textContent = e.hora;
+            const arts = appData.articulos.filter(a => a.documento === e.documento);
+            const tel = e.telefonos[0] || '';
+            const maps = getMapsLink(e.direccion, e.poblacion, e.cp);
+            const wa = tel ? getWhatsAppLink(tel) : null;
+            let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="window.location.href='tel:${tel}'">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
+            if (wa) html += `<a href="${wa}" target="_blank" class="btn-glide">${SVG_PHONE} Whatsapp</a>`;
+            html += arts.map(a => `<div class="producto-card" onclick="openProductoDetail('${a.id}')"><div class="producto-header"><div class="producto-almacen-icon">${a.almacen}</div><div class="producto-info-row"><div class="producto-qty">${a.cantidad}x</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
+            if (e.estadoPago === '€' || e.estadoPago === '?') html += `<button class="btn-glide" onclick="abrirModalCobro('${e.id}')">${SVG_MONEY} Cobrar</button>`;
+            if (e.importeCobrado) html += `<div class="importe-cobrado"><span>Importe cobrado:</span><strong>${e.importeCobrado.toFixed(2)} €</strong></div>`;
+            if (e.observaciones) html += `<div class="observaciones-box">${e.observaciones}</div>`;
+            html += `<div class="notas-section"><div class="notas-label">Notas</div><textarea class="notas-input" placeholder="Añadir notas..." onchange="guardarNotas('${e.id}', this.value)">${e.notas || ''}</textarea></div>`;
+            html += `<button class="btn-glide" onclick="marcarTerminado('${e.id}')">${SVG_CHECK} Terminado</button>`;
             document.getElementById('detailContent').innerHTML = html;
         }
 
-        // ========================================
-        // VISTA DE PRODUCTO
-        // ========================================
-        function openProductoDetail(articuloId) {
-            appData.productoSeleccionado = articuloId;
-            renderProductoDetail();
-            document.getElementById('productoDetailView').classList.add('active');
-        }
-
-        function closeProductoDetail() {
-            document.getElementById('productoDetailView').classList.remove('active');
-            appData.productoSeleccionado = null;
-        }
+        function openProductoDetail(id) { appData.productoSeleccionado = id; renderProductoDetail(); document.getElementById('productoDetailView').classList.add('active'); }
+        function closeProductoDetail() { document.getElementById('productoDetailView').classList.remove('active'); appData.productoSeleccionado = null; }
 
         function renderProductoDetail() {
-            const articulo = appData.articulos.find(a => a.id === appData.productoSeleccionado);
-            if (!articulo) return;
-
-            const entrega = appData.entregas.find(e => e.documento === articulo.documento);
-            const canEditAlmacen = puedeEditarAlmacen();
-            const tieneFoto = articulo.fotoLocal || articulo.fotoSerie;
-
-            let html = `
-                <div class="producto-detail-qty">${articulo.cantidad}x</div>
-                <div class="producto-detail-nombre">${articulo.articulo}</div>
-                <div class="producto-detail-almacen">Almacén: ${ALMACEN_NOMBRES[articulo.almacen] || articulo.almacen}</div>
-                ${entrega ? `
-                    <div class="producto-detail-info">${entrega.hora} ${entrega.cliente}</div>
-                    <div class="producto-detail-info">${entrega.direccion}</div>
-                ` : ''}
-
-                ${canEditAlmacen ? `
-                    <div class="almacen-selector">
-                        ${ALMACENES.map(a => `
-                            <button class="almacen-btn ${articulo.almacen === a ? 'active' : ''}"
-                                    onclick="cambiarAlmacen('${articulo.id}', '${a}')">${a}</button>
-                        `).join('')}
-                    </div>
-                ` : ''}
-
-                <button class="btn-glide btn-foto" onclick="tomarFoto('${articulo.id}')">
-                    ${SVG_CAMERA}
-                    Tomar una foto
-                </button>
-
-                ${tieneFoto ? `
-                    <img src="${articulo.fotoLocal || articulo.fotoSerie}" class="foto-preview" alt="Foto serie">
-                    <button class="btn-glide btn-borrar" onclick="borrarFoto('${articulo.id}')">
-                        ${SVG_ERASER}
-                        Borrar foto
-                    </button>
-                ` : ''}
-
-                <div class="notas-section">
-                    <div class="notas-label">Notas</div>
-                    <textarea class="notas-input" placeholder="Notas del producto..."></textarea>
-                </div>
-            `;
-
+            const a = appData.articulos.find(x => x.id === appData.productoSeleccionado); if (!a) return;
+            const e = appData.entregas.find(x => x.documento === a.documento);
+            const canEdit = puedeEditarAlmacen();
+            let html = `<div class="producto-detail-qty">${a.cantidad}x</div><div class="producto-detail-nombre">${a.articulo}</div><div class="producto-detail-almacen">Almacén: ${ALMACEN_NOMBRES[a.almacen]}</div>`;
+            if (e) html += `<div class="producto-detail-info">${e.hora} ${e.cliente}</div><div class="producto-detail-info">${e.direccion}</div>`;
+            if (canEdit) html += `<div class="almacen-selector">${ALMACENES.map(x => `<button class="almacen-btn ${a.almacen === x ? 'active' : ''}" onclick="cambiarAlmacen('${a.id}','${x}')">${x}</button>`).join('')}</div>`;
+            html += `<button class="btn-glide btn-foto" onclick="tomarFoto('${a.id}')">${SVG_CAMERA} Tomar una foto</button>`;
+            if (a.fotoLocal) html += `<img src="${a.fotoLocal}" class="foto-preview"><button class="btn-glide" onclick="borrarFoto('${a.id}')">${SVG_ERASER} Borrar foto</button>`;
+            html += `<div class="notas-section"><div class="notas-label">Notas</div><textarea class="notas-input" placeholder="Notas del producto..."></textarea></div>`;
             document.getElementById('productoDetailContent').innerHTML = html;
         }
 
-        // ========================================
-        // NAVEGACIÓN
-        // ========================================
-        function selectRepartidor(repartidor) {
-            appData.repartidorActual = repartidor;
-            saveToLocal();
-            renderApp();
-        }
+        function selectRepartidor(r) { appData.repartidorActual = r; saveToLocal(); renderApp(); }
+        function showTab(t) { appData.tabActual = t; saveToLocal(); renderApp(); }
 
-        function showTab(tab) {
-            appData.tabActual = tab;
-            saveToLocal();
-            renderApp();
-        }
-
-        // ========================================
-        // INICIALIZACIÓN
-        // ========================================
         function init() {
-            const hasUser = loadFromLocal();
-            
-            if (!hasUser || !appData.usuarioActual) {
-                showLogin();
-            } else {
-                hideLogin();
-            }
-            
+            const has = loadFromLocal();
+            if (!has || !appData.usuarioActual) showLogin(); else hideLogin();
             document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-ES');
         }
 
