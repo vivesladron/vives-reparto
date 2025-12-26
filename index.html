@@ -811,21 +811,20 @@
             saveToLocal(); renderApp();
         }
 
-        function toggleEstadoPago(id, ev) {
-            if (ev) ev.stopPropagation(); if (!puedeEditarPago()) return;
+        function toggleEstadoPago(id) {
+            if (!puedeEditarPago()) return;
             const e = appData.entregas.find(x => x.id === id); if (!e) return;
             const idx = ESTADOS_PAGO.indexOf(e.estadoPago);
             e.estadoPago = ESTADOS_PAGO[(idx + 1) % ESTADOS_PAGO.length];
-            savePendingChange({ type: 'estadoPago', documento: e.documento, value: e.estadoPago });
+            savePendingChange({ type: 'estadoPago', documento: e.documento, value: e.estadoPago, rowNumber: e.rowNumber });
             saveToLocal(); renderApp(); if (appData.entregaSeleccionada) renderDetail();
         }
 
-        function toggleQuienEntrega(id, ev) {
-            if (ev) ev.stopPropagation();
+        function toggleQuienEntrega(id) {
             const e = appData.entregas.find(x => x.id === id); if (!e) return;
             const idx = REPARTIDORES_ENTREGA.indexOf(e.quienEntrega);
             e.quienEntrega = REPARTIDORES_ENTREGA[(idx + 1) % REPARTIDORES_ENTREGA.length];
-            savePendingChange({ type: 'quienEntrega', documento: e.documento, value: e.quienEntrega });
+            savePendingChange({ type: 'quienEntrega', documento: e.documento, value: e.quienEntrega, rowNumber: e.rowNumber });
             saveToLocal(); renderApp(); if (appData.entregaSeleccionada) renderDetail();
         }
 
@@ -912,11 +911,11 @@
         function renderEntregaCard(e) {
             const obs = e.observaciones ? e.observaciones.substring(0, 60) + (e.observaciones.length > 60 ? '...' : '') : '';
             const canEdit = puedeEditarPago();
-            return `<div class="entrega-card"><div class="entrega-row" onclick="openDetail('${e.id}')">
-                <div class="status-icon ${getEstadoPagoClass(e.estadoPago)}" ${canEdit ? `onclick="toggleEstadoPago('${e.id}', event)"` : ''} style="${canEdit ? '' : 'cursor:default'}">${e.estadoPago}</div>
-                <div class="entrega-info"><div class="cliente-nombre">${e.cliente}</div><div class="cliente-direccion">${e.direccion}</div><div class="cliente-vendedor">${e.documento} - ${e.vendedor}</div>${obs ? `<div class="observaciones-preview">${obs}</div>` : ''}</div>
-                <div class="repartidor-icon" onclick="toggleQuienEntrega('${e.id}', event)">${e.quienEntrega === 'EQ' ? SVG_EQUIPO : e.quienEntrega}</div>
-                <div class="arrow-icon">›</div></div></div>`;
+            return `<div class="entrega-card"><div class="entrega-row">
+                <div class="status-icon ${getEstadoPagoClass(e.estadoPago)}" onclick="event.stopPropagation(); ${canEdit ? `toggleEstadoPago('${e.id}')` : ''}" style="${canEdit ? 'cursor:pointer' : 'cursor:default'}">${e.estadoPago}</div>
+                <div class="entrega-info" onclick="openDetail('${e.id}')"><div class="cliente-nombre">${e.cliente}</div><div class="cliente-direccion">${e.direccion}</div><div class="cliente-vendedor">${e.documento} - ${e.vendedor}</div>${obs ? `<div class="observaciones-preview">${obs}</div>` : ''}</div>
+                <div class="repartidor-icon" onclick="event.stopPropagation(); toggleQuienEntrega('${e.id}')">${e.quienEntrega === 'EQ' ? SVG_EQUIPO : e.quienEntrega}</div>
+                <div class="arrow-icon" onclick="openDetail('${e.id}')">›</div></div></div>`;
         }
 
         function updateTabBadges() {
