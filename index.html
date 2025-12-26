@@ -694,7 +694,12 @@
                     body: JSON.stringify({})
                 });
                 
-                const data = await response.json();
+                let data = await response.json();
+                
+                // Si viene como array, tomar el primer elemento
+                if (Array.isArray(data)) {
+                    data = data[0];
+                }
                 
                 if (data.ok) {
                     processDataFromSheets(data.reparto, data.lista);
@@ -704,7 +709,7 @@
                 }
             } catch (e) {
                 console.error(e);
-                alert('Error de conexión');
+                alert('Error de conexión: ' + e.message);
                 btn.innerHTML = originalHTML;
             }
         }
