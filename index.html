@@ -98,6 +98,8 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        .filter-bar.hidden { display: none; }
+
         .filter-btn {
             background: var(--bg-primary);
             border: none;
@@ -446,10 +448,10 @@
         .importe-cobrado { background: #e8f5e9; border-radius: 8px; padding: 10px 16px; margin: 12px 0; font-size: 0.9rem; color: #2e7d32; display: flex; justify-content: space-between; }
         .importe-cobrado strong { font-family: 'JetBrains Mono', monospace; }
 
-        .scanner-section { padding: 20px; text-align: center; }
-        .scanner-section h3 { font-size: 1.2rem; margin-bottom: 16px; color: var(--text-primary); }
-        #scanner-container { width: 100%; max-width: 400px; margin: 0 auto 20px; border-radius: 12px; overflow: hidden; }
-        #scanner-container video { width: 100%; border-radius: 12px; }
+        .scanner-section { padding: 16px; text-align: center; }
+        .scanner-section h3 { font-size: 1.1rem; margin-bottom: 12px; color: var(--text-primary); }
+        #scanner-container { width: 100%; max-width: 350px; height: 200px; margin: 0 auto 16px; border-radius: 12px; overflow: hidden; background: #000; }
+        #scanner-container video { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
         .resultado-encontrado { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 12px; padding: 16px; margin-top: 16px; text-align: left; }
         .resultado-encontrado h4 { color: #2e7d32; margin-bottom: 8px; }
         .resultado-no-encontrado { background: #ffebee; border: 2px solid #f44336; border-radius: 12px; padding: 16px; margin-top: 16px; }
@@ -991,7 +993,16 @@
         function renderApp() {
             document.getElementById('headerDate').textContent = appData.fecha || new Date().toLocaleDateString('es-ES');
             if (appData.usuarioActual) document.getElementById('userBadgeName').textContent = appData.emailActual;
-            document.getElementById('filterBar').innerHTML = appData.repartidores.map(r => `<button class="filter-btn ${r === appData.repartidorActual ? 'active' : ''}" onclick="selectRepartidor('${r}')">${r}</button>`).join('');
+            
+            // Ocultar filtro en pestaña Lista
+            const filterBar = document.getElementById('filterBar');
+            if (appData.tabActual === 'lista') {
+                filterBar.classList.add('hidden');
+            } else {
+                filterBar.classList.remove('hidden');
+                filterBar.innerHTML = appData.repartidores.map(r => `<button class="filter-btn ${r === appData.repartidorActual ? 'active' : ''}" onclick="selectRepartidor('${r}')">${r}</button>`).join('');
+            }
+            
             renderMainContent(); updateTabBadges(); updateSyncIndicator();
         }
 
@@ -1087,10 +1098,16 @@
         }
 
         function selectRepartidor(r) { appData.repartidorActual = r; saveToLocal(); renderApp(); }
-        function showTab(t) { 
+        
+        async function showTab(t) { 
             // Detener scanner si cambiamos de pestaña
-            if (window.html5QrCode) {
-                window.html5QrCode.stop().catch(() => {});
+            if (window.html5QrCode && scannerActivo) {
+                try {
+                    await window.html5QrCode.stop();
+                    scannerActivo = false;
+                } catch (e) {
+                    console.log('Scanner ya detenido');
+                }
             }
             appData.tabActual = t; 
             saveToLocal(); 
@@ -1099,7 +1116,7 @@
 
         let scannerActivo = false;
 
-        function iniciarScanner() {
+        async function iniciarScanner() {
             const container = document.getElementById('scanner-container');
             const btnIniciar = document.getElementById('btnIniciarScanner');
             
@@ -1107,29 +1124,34 @@
             
             if (btnIniciar) btnIniciar.style.display = 'none';
             
-            window.html5QrCode = new Html5Qrcode("scanner-container");
+            // Crear nueva instancia si no existe
+            if (!window.html5QrCode) {
+                window.html5QrCode = new Html5Qrcode("scanner-container");
+            }
             
-            window.html5QrCode.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 150 },
-                    aspectRatio: 1.777
-                },
-                (decodedText) => {
-                    // Código escaneado
-                    procesarCodigoEscaneado(decodedText);
-                },
-                (errorMessage) => {
-                    // Ignorar errores de escaneo continuo
-                }
-            ).then(() => {
+            try {
+                await window.html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 280, height: 100 },
+                        aspectRatio: 1.5
+                    },
+                    (decodedText) => {
+                        procesarCodigoEscaneado(decodedText);
+                    },
+                    (errorMessage) => {
+                        // Ignorar errores de escaneo continuo
+                    }
+                );
                 scannerActivo = true;
-            }).catch((err) => {
+            } catch (err) {
                 console.error('Error al iniciar cámara:', err);
-                container.innerHTML = '<p style="color: red;">Error al acceder a la cámara. Asegúrate de dar permisos.</p>';
+                if (container) {
+                    container.innerHTML = '<p style="color: red; padding: 20px;">Error al acceder a la cámara. Asegúrate de dar permisos.</p>';
+                }
                 if (btnIniciar) btnIniciar.style.display = 'block';
-            });
+            }
         }
 
         function procesarCodigoEscaneado(ean) {
@@ -1167,11 +1189,6 @@
                 // Vibrar patrón diferente para error
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             }
-            
-            // Limpiar resultado después de 4 segundos
-            setTimeout(() => {
-                if (resultado) resultado.innerHTML = '';
-            }, 4000);
         }
 
         function init() {
