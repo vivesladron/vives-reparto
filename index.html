@@ -556,7 +556,7 @@
         const WEBHOOK_GUARDAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/guardar-cambios';
 
         const ESTADOS_PAGO = ['?', '✓', '€'];
-        const ALMACENES = ['?', 'A', 'R', 'T', 'C'];
+        const ALMACENES = ['?', 'A', 'T', 'C', 'R'];
         const ALMACEN_NOMBRES = { '?': 'Por definir', 'A': 'Almacén', 'R': 'Reservas', 'T': 'Tienda', 'C': 'Celsa' };
         const REPARTIDORES_ENTREGA = ['EQ', 'A', 'S'];
 
@@ -784,12 +784,12 @@
             
             // Convertir ALMACÉN numérico a letra si es necesario
             const convertirAlmacen = (alm) => {
-                if (!alm || alm === '') return '?';
-                if (alm === 1 || alm === '1') return 'A';
-                if (alm === 2 || alm === '2') return 'R';
+                if (!alm || alm === '' || alm === 1 || alm === '1') return '?';
+                if (alm === 2 || alm === '2') return 'A';
                 if (alm === 3 || alm === '3') return 'T';
                 if (alm === 4 || alm === '4') return 'C';
-                if (['?', 'A', 'R', 'T', 'C'].includes(alm)) return alm;
+                if (alm === 5 || alm === '5') return 'R';
+                if (['?', 'A', 'T', 'C', 'R'].includes(alm)) return alm;
                 return '?';
             };
             
