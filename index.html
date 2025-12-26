@@ -670,43 +670,79 @@
             return appData.usuarioActual !== null;
         }
 
+        let syncInProgress = false;
+        
         function savePendingChange(change) {
-            appData.pendingChanges.push({ ...change, timestamp: new Date().toISOString() });
+            // Buscar si ya existe un cambio pendiente para el mismo item y tipo
+            const existingIndex = appData.pendingChanges.findIndex(c => 
+                c.rowNumber === change.rowNumber && c.type === change.type
+            );
+            
+            if (existingIndex >= 0) {
+                // Actualizar el cambio existente en lugar de añadir uno nuevo
+                appData.pendingChanges[existingIndex] = { ...change, timestamp: new Date().toISOString() };
+            } else {
+                appData.pendingChanges.push({ ...change, timestamp: new Date().toISOString() });
+            }
+            
             saveToLocal(); 
             updateSyncIndicator();
+            
             // Auto-sincronizar después de 2 segundos sin cambios
             clearTimeout(window.syncTimeout);
-            window.syncTimeout = setTimeout(sincronizarCambios, 2000);
+            if (!syncInProgress) {
+                window.syncTimeout = setTimeout(sincronizarCambios, 2000);
+            }
         }
 
         async function sincronizarCambios() {
-            if (appData.pendingChanges.length === 0) return;
+            if (appData.pendingChanges.length === 0 || syncInProgress) return;
             
+            syncInProgress = true;
             const indicator = document.getElementById('syncIndicator');
             indicator.textContent = '⏳ Guardando...';
             indicator.classList.add('visible');
+            
+            // Copiar los cambios actuales para enviar
+            const cambiosAEnviar = [...appData.pendingChanges];
             
             try {
                 const response = await fetch(WEBHOOK_GUARDAR, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cambios: appData.pendingChanges })
+                    body: JSON.stringify({ cambios: cambiosAEnviar })
                 });
                 
                 let data = await response.json();
                 if (Array.isArray(data)) data = data[0];
                 
                 if (data.ok) {
-                    appData.pendingChanges = [];
+                    // Eliminar solo los cambios que se enviaron
+                    appData.pendingChanges = appData.pendingChanges.filter(c => 
+                        !cambiosAEnviar.some(e => e.timestamp === c.timestamp)
+                    );
                     saveToLocal();
-                    indicator.textContent = '✓ Guardado';
-                    setTimeout(() => indicator.classList.remove('visible'), 2000);
+                    
+                    if (appData.pendingChanges.length === 0) {
+                        indicator.textContent = '✓ Guardado';
+                        setTimeout(() => indicator.classList.remove('visible'), 2000);
+                    } else {
+                        // Hay más cambios pendientes, sincronizar de nuevo
+                        setTimeout(sincronizarCambios, 1000);
+                    }
                 } else {
                     indicator.textContent = '⚠️ Error al guardar';
                 }
             } catch (e) {
                 console.error(e);
                 indicator.textContent = '⚠️ Error de conexión';
+            }
+            
+            syncInProgress = false;
+            
+            // Si hay cambios pendientes que se añadieron mientras guardaba, sincronizar
+            if (appData.pendingChanges.length > 0) {
+                window.syncTimeout = setTimeout(sincronizarCambios, 2000);
             }
         }
 
