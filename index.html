@@ -724,7 +724,7 @@
                 observaciones: r['OBSERVACIONES'] || '',
                 telefonos: [formatPhone(r['Tel1'] || r['TEL1']), formatPhone(r['Tel2'] || r['TEL2']), formatPhone(r['Tel3'] || r['TEL3'])].filter(t => t),
                 estadoPago: r['ESTADO_PAGO'] || '?', 
-                quienEntrega: r['QUIEN_ENTREGA'] || 'EQ', 
+                quienEntrega: r['INSTALADOR'] || 'EQ', 
                 estado: r['ESTADO'] || 'PENDIENTE', 
                 notas: r['NOTAS'] || '', 
                 importeCobrado: r['IMPORTE_COBRADO'] || null
