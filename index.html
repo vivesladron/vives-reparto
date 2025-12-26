@@ -889,14 +889,14 @@
         function marcarTerminado(id) {
             const e = appData.entregas.find(x => x.id === id); if (!e) return;
             e.estado = 'TERMINADO';
-            savePendingChange({ type: 'estado', documento: e.documento, value: 'TERMINADO' });
+            savePendingChange({ type: 'estado', documento: e.documento, value: 'TERMINADO', rowNumber: e.rowNumber });
             saveToLocal(); closeDetail(); renderApp();
         }
 
         function guardarNotas(id, notas) {
             const e = appData.entregas.find(x => x.id === id); if (!e) return;
             e.notas = notas;
-            savePendingChange({ type: 'notas', documento: e.documento, value: notas });
+            savePendingChange({ type: 'notas', documento: e.documento, value: notas, rowNumber: e.rowNumber });
             saveToLocal();
         }
 
@@ -914,7 +914,7 @@
             const imp = parseFloat(document.getElementById('cobroInput').value) || 0;
             const e = appData.entregas.find(x => x.id === appData.entregaParaCobro); if (!e) return;
             e.importeCobrado = imp;
-            savePendingChange({ type: 'importeCobrado', documento: e.documento, value: imp });
+            savePendingChange({ type: 'importeCobrado', documento: e.documento, value: imp, rowNumber: e.rowNumber });
             saveToLocal(); renderDetail(); cerrarModalCobro();
         }
 
