@@ -604,7 +604,13 @@
             btn.disabled = true; btn.textContent = 'Verificando...'; mostrarError('');
             try {
                 const response = await fetch(WEBHOOK_VERIFICAR, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: appData.emailActual, pin }) });
-                const data = await response.json();
+                let data = await response.json();
+                
+                // Si viene como array, tomar el primer elemento
+                if (Array.isArray(data)) {
+                    data = data[0];
+                }
+                
                 if (data.ok) {
                     appData.usuarioActual = data.email; appData.emailActual = data.email; appData.rolActual = data.rol;
                     localStorage.setItem('vivesRepartoSession', JSON.stringify({ email: data.email, rol: data.rol }));
