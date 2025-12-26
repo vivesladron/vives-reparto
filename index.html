@@ -924,8 +924,10 @@
 
         function marcarTerminado(id) {
             const e = appData.entregas.find(x => x.id === id); if (!e) return;
-            e.estado = 'TERMINADO';
-            savePendingChange({ type: 'estado', documento: e.documento, value: 'TERMINADO', rowNumber: e.rowNumber });
+            const ahora = new Date();
+            const hora = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            e.estado = hora;
+            savePendingChange({ type: 'estado', documento: e.documento, value: hora, rowNumber: e.rowNumber });
             saveToLocal(); closeDetail(); renderApp();
         }
 
@@ -979,11 +981,18 @@
             renderMainContent(); updateTabBadges(); updateSyncIndicator();
         }
 
+        function estaTerminado(estado) {
+            // Si tiene formato de hora (HH:MM) o dice TERMINADO, está terminado
+            if (!estado) return false;
+            return estado === 'TERMINADO' || /^\d{2}:\d{2}$/.test(estado);
+        }
+
         function renderMainContent() {
             const c = document.getElementById('mainContent');
             let entregas = appData.entregas.filter(e => {
                 const mR = appData.repartidorActual === 'TODOS' || e.repartidor === appData.repartidorActual;
-                const mT = appData.tabActual === 'reparto' ? e.estado !== 'TERMINADO' : e.estado === 'TERMINADO';
+                const terminado = estaTerminado(e.estado);
+                const mT = appData.tabActual === 'reparto' ? !terminado : terminado;
                 return mR && mT;
             });
             if (appData.tabActual === 'servicios' || appData.tabActual === 'carrito') { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg><p>Próximamente</p></div>`; return; }
