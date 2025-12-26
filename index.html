@@ -465,14 +465,13 @@
 
         <main id="mainContent">
             <div class="upload-section">
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-area" onclick="cargarDatosDesdesheets()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     <h3>Cargar datos de reparto</h3>
-                    <p>Pulsa para seleccionar el archivo Excel</p>
+                    <p>Pulsa para sincronizar con Google Sheets</p>
                 </div>
-                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
             </div>
         </main>
 
@@ -553,6 +552,7 @@
     <script>
         const WEBHOOK_AUTH = 'https://n8n-n8n.qhekde.easypanel.host/webhook/auth-reparto';
         const WEBHOOK_VERIFICAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/verificar-pin';
+        const WEBHOOK_LEER = 'https://n8n-n8n.qhekde.easypanel.host/webhook/leer-reparto';
 
         const ESTADOS_PAGO = ['?', '✓', '€'];
         const ALMACENES = ['?', 'A', 'R', 'T', 'C'];
@@ -680,6 +680,68 @@
             let str = String(phone).replace(/[^0-9+]/g, '');
             if (phone > 1000000000) str = Math.round(phone).toString();
             return str.length >= 9 ? str : null;
+        }
+
+        async function cargarDatosDesdesheets() {
+            const btn = document.querySelector('.upload-area');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<h3>Cargando...</h3><p>Sincronizando con Google Sheets</p>';
+            
+            try {
+                const response = await fetch(WEBHOOK_LEER, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                const data = await response.json();
+                
+                if (data.ok) {
+                    processDataFromSheets(data.reparto, data.lista);
+                } else {
+                    alert('Error al cargar datos');
+                    btn.innerHTML = originalHTML;
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error de conexión');
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        function processDataFromSheets(repData, listData) {
+            appData.entregas = repData.map((r, i) => ({
+                id: `e_${i}`, 
+                repartidor: r['REPARTIDOR'] || 'Sin asignar', 
+                dia: r['DIA'], 
+                hora: r['HORA'] || '',
+                documento: r['DOCUMENTO'], 
+                cliente: r['CLIENTE'], 
+                direccion: r['DIRECCION'], 
+                poblacion: r['POBLACION'],
+                cp: r['C.P.'] || r['CP'], 
+                vendedor: r['VENDEDOR'], 
+                observaciones: r['OBSERVACIONES'] || '',
+                telefonos: [formatPhone(r['Tel1'] || r['TEL1']), formatPhone(r['Tel2'] || r['TEL2']), formatPhone(r['Tel3'] || r['TEL3'])].filter(t => t),
+                estadoPago: r['ESTADO_PAGO'] || '?', 
+                quienEntrega: r['QUIEN_ENTREGA'] || 'EQ', 
+                estado: r['ESTADO'] || 'PENDIENTE', 
+                notas: r['NOTAS'] || '', 
+                importeCobrado: r['IMPORTE_COBRADO'] || null
+            }));
+            appData.articulos = listData.map((r, i) => ({
+                id: `a_${i}`, 
+                documento: r['DOCUMENTO'], 
+                codigo: r['CÓDIGO'] || r['CODIGO'],
+                articulo: r['ARTÍCULO'] || r['ARTICULO'], 
+                cantidad: r['CANTIDAD'] || 1, 
+                almacen: r['ALMACEN'] || '?', 
+                fotoLocal: null
+            }));
+            appData.repartidores = ['TODOS', ...new Set(appData.entregas.map(e => e.repartidor))];
+            if (appData.entregas.length > 0) appData.fecha = appData.entregas[0].dia;
+            saveToLocal(); 
+            renderApp();
         }
 
         function getWhatsAppLink(phone) {
