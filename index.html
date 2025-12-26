@@ -445,6 +445,21 @@
 
         .importe-cobrado { background: #e8f5e9; border-radius: 8px; padding: 10px 16px; margin: 12px 0; font-size: 0.9rem; color: #2e7d32; display: flex; justify-content: space-between; }
         .importe-cobrado strong { font-family: 'JetBrains Mono', monospace; }
+
+        .scanner-section { padding: 20px; text-align: center; }
+        .scanner-section h3 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text-primary); }
+        .scanner-section p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; }
+        .scanner-input-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        .ean-input { flex: 1; padding: 14px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1.1rem; font-family: 'JetBrains Mono', monospace; text-align: center; }
+        .ean-input:focus { border-color: var(--accent-blue); outline: none; }
+        .btn-buscar { padding: 14px 24px; background: var(--accent-blue); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .resultado-encontrado { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 12px; padding: 16px; margin-top: 16px; text-align: left; }
+        .resultado-encontrado h4 { color: #2e7d32; margin-bottom: 8px; }
+        .resultado-no-encontrado { background: #ffebee; border: 2px solid #f44336; border-radius: 12px; padding: 16px; margin-top: 16px; }
+        .resultado-no-encontrado h4 { color: #c62828; }
+        .resultado-info { font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px; }
+        .resultado-cliente { font-weight: 600; color: var(--accent-blue); }
+        .resultado-articulo { font-size: 1rem; font-weight: 600; margin: 8px 0; }
     </style>
 </head>
 <body>
@@ -479,6 +494,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                 Reparto
             </button>
+            <button class="tab-item" onclick="showTab('lista')" id="tabLista">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/><rect x="18" y="14" width="4" height="6" rx="1"/></svg>
+                Lista
+            </button>
             <button class="tab-item" onclick="showTab('terminados')" id="tabTerminados">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 Terminados
@@ -486,10 +505,6 @@
             <button class="tab-item" onclick="showTab('servicios')" id="tabServicios">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                 Servicios
-            </button>
-            <button class="tab-item" onclick="showTab('carrito')" id="tabCarrito">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                Carrito
             </button>
         </nav>
     </div>
@@ -835,6 +850,7 @@
                 articulo: r['ARTÍCULO'] || r['ARTICULO'], 
                 cantidad: r['CANTIDAD'] || 1, 
                 almacen: convertirAlmacen(r['ALMACÉN'] || r['ALMACEN']), 
+                ean: r['EAN'] || '',
                 fotoLocal: null,
                 rowNumber: r['row_number']
             }));
@@ -995,7 +1011,23 @@
                 const mT = appData.tabActual === 'reparto' ? !terminado : terminado;
                 return mR && mT;
             });
-            if (appData.tabActual === 'servicios' || appData.tabActual === 'carrito') { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg><p>Próximamente</p></div>`; return; }
+            if (appData.tabActual === 'servicios') { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg><p>Próximamente</p></div>`; return; }
+            
+            if (appData.tabActual === 'lista') { 
+                c.innerHTML = `
+                    <div class="scanner-section">
+                        <h3>Escanear código de barras</h3>
+                        <p>Escanea un EAN para verificar si está en la lista de reparto</p>
+                        <div class="scanner-input-row">
+                            <input type="text" id="eanInput" class="ean-input" placeholder="Escanea o escribe EAN..." 
+                                   onkeypress="if(event.key==='Enter')buscarEAN()" autofocus>
+                            <button class="btn-buscar" onclick="buscarEAN()">Buscar</button>
+                        </div>
+                        <div id="resultadoEAN"></div>
+                    </div>
+                `; 
+                return; 
+            }
             if (entregas.length === 0) { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>${appData.tabActual === 'reparto' ? 'No hay entregas pendientes' : 'No hay entregas terminadas'}</p></div>`; return; }
             entregas.sort((a, b) => ((a.hora || '').split(' - ')[0] || '99').localeCompare((b.hora || '').split(' - ')[0] || '99'));
             const grupos = {}; entregas.forEach(e => { const h = e.hora || 'Sin hora'; if (!grupos[h]) grupos[h] = []; grupos[h].push(e); });
@@ -1058,6 +1090,47 @@
 
         function selectRepartidor(r) { appData.repartidorActual = r; saveToLocal(); renderApp(); }
         function showTab(t) { appData.tabActual = t; saveToLocal(); renderApp(); }
+
+        function buscarEAN() {
+            const ean = document.getElementById('eanInput').value.trim();
+            const resultado = document.getElementById('resultadoEAN');
+            
+            if (!ean) {
+                resultado.innerHTML = '';
+                return;
+            }
+            
+            // Buscar en la lista de artículos solo por EAN
+            const articulo = appData.articulos.find(a => a.ean === ean);
+            
+            if (articulo) {
+                // Buscar la entrega asociada
+                const entrega = appData.entregas.find(e => e.documento === articulo.documento);
+                
+                resultado.innerHTML = `
+                    <div class="resultado-encontrado">
+                        <h4>✓ Encontrado en la lista</h4>
+                        <div class="resultado-articulo">${articulo.cantidad}x ${articulo.articulo}</div>
+                        ${entrega ? `
+                            <div class="resultado-cliente">${entrega.cliente}</div>
+                            <div class="resultado-info">${entrega.direccion}</div>
+                            <div class="resultado-info">${entrega.hora} - ${entrega.documento}</div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                resultado.innerHTML = `
+                    <div class="resultado-no-encontrado">
+                        <h4>✗ No encontrado</h4>
+                        <p>El código ${ean} no está en la lista de reparto de hoy</p>
+                    </div>
+                `;
+            }
+            
+            // Limpiar input para siguiente escaneo
+            document.getElementById('eanInput').value = '';
+            document.getElementById('eanInput').focus();
+        }
 
         function init() {
             const has = loadFromLocal();
