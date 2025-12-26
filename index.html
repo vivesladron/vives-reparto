@@ -553,6 +553,7 @@
         const WEBHOOK_AUTH = 'https://n8n-n8n.qhekde.easypanel.host/webhook/auth-reparto';
         const WEBHOOK_VERIFICAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/verificar-pin';
         const WEBHOOK_LEER = 'https://n8n-n8n.qhekde.easypanel.host/webhook/leer-reparto';
+        const WEBHOOK_GUARDAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/guardar-cambios';
 
         const ESTADOS_PAGO = ['?', '✓', '€'];
         const ALMACENES = ['?', 'A', 'R', 'T', 'C'];
@@ -672,7 +673,42 @@
 
         function savePendingChange(change) {
             appData.pendingChanges.push({ ...change, timestamp: new Date().toISOString() });
-            saveToLocal(); updateSyncIndicator();
+            saveToLocal(); 
+            updateSyncIndicator();
+            // Auto-sincronizar después de 2 segundos sin cambios
+            clearTimeout(window.syncTimeout);
+            window.syncTimeout = setTimeout(sincronizarCambios, 2000);
+        }
+
+        async function sincronizarCambios() {
+            if (appData.pendingChanges.length === 0) return;
+            
+            const indicator = document.getElementById('syncIndicator');
+            indicator.textContent = '⏳ Guardando...';
+            indicator.classList.add('visible');
+            
+            try {
+                const response = await fetch(WEBHOOK_GUARDAR, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cambios: appData.pendingChanges })
+                });
+                
+                let data = await response.json();
+                if (Array.isArray(data)) data = data[0];
+                
+                if (data.ok) {
+                    appData.pendingChanges = [];
+                    saveToLocal();
+                    indicator.textContent = '✓ Guardado';
+                    setTimeout(() => indicator.classList.remove('visible'), 2000);
+                } else {
+                    indicator.textContent = '⚠️ Error al guardar';
+                }
+            } catch (e) {
+                console.error(e);
+                indicator.textContent = '⚠️ Error de conexión';
+            }
         }
 
         function updateSyncIndicator() {
