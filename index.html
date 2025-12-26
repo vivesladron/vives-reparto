@@ -710,7 +710,11 @@
         }
 
         function processDataFromSheets(repData, listData) {
-            appData.entregas = repData.map((r, i) => ({
+            // Filtrar: reparto son los que tienen VENDEDOR, lista los que tienen CÓDIGO
+            const repartoFiltrado = repData.filter(r => r['VENDEDOR'] && !r['CÓDIGO']);
+            const listaFiltrada = repData.filter(r => r['CÓDIGO'] || r['ARTÍCULO']);
+            
+            appData.entregas = repartoFiltrado.map((r, i) => ({
                 id: `e_${i}`, 
                 repartidor: r['REPARTIDOR'] || 'Sin asignar', 
                 dia: r['DIA'], 
@@ -718,8 +722,8 @@
                 documento: r['DOCUMENTO'], 
                 cliente: r['CLIENTE'], 
                 direccion: r['DIRECCION'], 
-                poblacion: r['POBLACION'],
-                cp: r['C.P.'] || r['CP'], 
+                poblacion: r['POBLACION'] || '',
+                cp: r['C.P.'] || r['CP'] || '', 
                 vendedor: r['VENDEDOR'], 
                 observaciones: r['OBSERVACIONES'] || '',
                 telefonos: [formatPhone(r['Tel1'] || r['TEL1']), formatPhone(r['Tel2'] || r['TEL2']), formatPhone(r['Tel3'] || r['TEL3'])].filter(t => t),
@@ -727,16 +731,30 @@
                 quienEntrega: r['INSTALADOR'] || 'EQ', 
                 estado: r['ESTADO'] || 'PENDIENTE', 
                 notas: r['NOTAS'] || '', 
-                importeCobrado: r['IMPORTE_COBRADO'] || null
+                importeCobrado: r['IMPORTE_COBRADO'] || null,
+                rowNumber: r['row_number']
             }));
-            appData.articulos = listData.map((r, i) => ({
+            
+            // Convertir ALMACÉN numérico a letra si es necesario
+            const convertirAlmacen = (alm) => {
+                if (!alm || alm === '') return '?';
+                if (alm === 1 || alm === '1') return 'A';
+                if (alm === 2 || alm === '2') return 'R';
+                if (alm === 3 || alm === '3') return 'T';
+                if (alm === 4 || alm === '4') return 'C';
+                if (['?', 'A', 'R', 'T', 'C'].includes(alm)) return alm;
+                return '?';
+            };
+            
+            appData.articulos = listaFiltrada.map((r, i) => ({
                 id: `a_${i}`, 
                 documento: r['DOCUMENTO'], 
                 codigo: r['CÓDIGO'] || r['CODIGO'],
                 articulo: r['ARTÍCULO'] || r['ARTICULO'], 
                 cantidad: r['CANTIDAD'] || 1, 
-                almacen: r['ALMACEN'] || '?', 
-                fotoLocal: null
+                almacen: convertirAlmacen(r['ALMACÉN'] || r['ALMACEN']), 
+                fotoLocal: null,
+                rowNumber: r['row_number']
             }));
             appData.repartidores = ['TODOS', ...new Set(appData.entregas.map(e => e.repartidor))];
             if (appData.entregas.length > 0) appData.fecha = appData.entregas[0].dia;
