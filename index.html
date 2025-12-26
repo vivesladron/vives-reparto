@@ -832,8 +832,17 @@
             if (!puedeEditarAlmacen()) return;
             const a = appData.articulos.find(x => x.id === id); if (!a) return;
             a.almacen = alm;
-            savePendingChange({ type: 'almacen', documento: a.documento, codigo: a.codigo, value: alm });
+            savePendingChange({ type: 'almacen', documento: a.documento, codigo: a.codigo, value: alm, rowNumber: a.rowNumber });
             saveToLocal(); renderProductoDetail(); renderDetail();
+        }
+
+        function toggleAlmacen(id) {
+            if (!puedeEditarAlmacen()) return;
+            const a = appData.articulos.find(x => x.id === id); if (!a) return;
+            const idx = ALMACENES.indexOf(a.almacen);
+            a.almacen = ALMACENES[(idx + 1) % ALMACENES.length];
+            savePendingChange({ type: 'almacen', documento: a.documento, codigo: a.codigo, value: a.almacen, rowNumber: a.rowNumber });
+            saveToLocal(); renderDetail();
         }
 
         function marcarTerminado(id) {
@@ -933,9 +942,10 @@
             const tel = e.telefonos[0] || '';
             const maps = getMapsLink(e.direccion, e.poblacion, e.cp);
             const wa = tel ? getWhatsAppLink(tel) : null;
+            const canEditAlm = puedeEditarAlmacen();
             let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="window.location.href='tel:${tel}'">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
             if (wa) html += `<a href="${wa}" target="_blank" class="btn-glide">${SVG_PHONE} Whatsapp</a>`;
-            html += arts.map(a => `<div class="producto-card" onclick="openProductoDetail('${a.id}')"><div class="producto-header"><div class="producto-almacen-icon">${a.almacen}</div><div class="producto-info-row"><div class="producto-qty">${a.cantidad}x</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
+            html += arts.map(a => `<div class="producto-card"><div class="producto-header"><div class="producto-almacen-icon" onclick="event.stopPropagation(); ${canEditAlm ? `toggleAlmacen('${a.id}')` : ''}" style="${canEditAlm ? 'cursor:pointer' : ''}">${a.almacen}</div><div class="producto-info-row" onclick="openProductoDetail('${a.id}')"><div class="producto-qty">${a.cantidad}x</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
             if (e.estadoPago === '€' || e.estadoPago === '?') html += `<button class="btn-glide" onclick="abrirModalCobro('${e.id}')">${SVG_MONEY} Cobrar</button>`;
             if (e.importeCobrado) html += `<div class="importe-cobrado"><span>Importe cobrado:</span><strong>${e.importeCobrado.toFixed(2)} €</strong></div>`;
             if (e.observaciones) html += `<div class="observaciones-box">${e.observaciones}</div>`;
