@@ -160,7 +160,6 @@
         .status-icon:active { transform: scale(0.9); }
         .status-icon.pagado { background: var(--accent-blue); }
         .status-icon.cobrar { background: var(--accent-red); }
-        .status-icon.indefinido { background: var(--accent-blue); }
 
         .repartidor-icon {
             width: 44px;
@@ -817,7 +816,7 @@
         }
 
         function getMapsLink(dir, pob, cp) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir + ', ' + pob + ' ' + cp)}`; }
-        function getEstadoPagoClass(estado) { return estado === '✓' ? 'pagado' : estado === '€' ? 'cobrar' : 'indefinido'; }
+        function getEstadoPagoClass(estado) { return estado === '€' ? 'cobrar' : 'pagado'; }
 
         function handleFileUpload(event) {
             const file = event.target.files[0]; if (!file) return;
@@ -986,11 +985,11 @@
             const wa = tel ? getWhatsAppLink(tel) : null;
             const canEditAlm = puedeEditarAlmacen();
             let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="window.location.href='tel:${tel}'">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
+            if (e.observaciones) html += `<div class="observaciones-box">${e.observaciones}</div>`;
             if (wa) html += `<a href="${wa}" target="_blank" class="btn-glide">${SVG_PHONE} Whatsapp</a>`;
             html += arts.map(a => `<div class="producto-card"><div class="producto-header"><div class="producto-almacen-icon" onclick="event.stopPropagation(); ${canEditAlm ? `toggleAlmacen('${a.id}')` : ''}" style="${canEditAlm ? 'cursor:pointer' : ''}">${a.almacen}</div><div class="producto-info-row" onclick="openProductoDetail('${a.id}')"><div class="producto-qty">${a.cantidad}x</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
             if (e.estadoPago === '€' || e.estadoPago === '?') html += `<button class="btn-glide" onclick="abrirModalCobro('${e.id}')">${SVG_MONEY} Cobrar</button>`;
             if (e.importeCobrado) html += `<div class="importe-cobrado"><span>Importe cobrado:</span><strong>${e.importeCobrado.toFixed(2)} €</strong></div>`;
-            if (e.observaciones) html += `<div class="observaciones-box">${e.observaciones}</div>`;
             html += `<div class="notas-section"><div class="notas-label">Notas</div><textarea class="notas-input" placeholder="Añadir notas..." onchange="guardarNotas('${e.id}', this.value)">${e.notas || ''}</textarea></div>`;
             html += `<button class="btn-glide" onclick="marcarTerminado('${e.id}')">${SVG_CHECK} Terminado</button>`;
             document.getElementById('detailContent').innerHTML = html;
