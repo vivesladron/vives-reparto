@@ -447,12 +447,9 @@
         .importe-cobrado strong { font-family: 'JetBrains Mono', monospace; }
 
         .scanner-section { padding: 20px; text-align: center; }
-        .scanner-section h3 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text-primary); }
-        .scanner-section p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; }
-        .scanner-input-row { display: flex; gap: 10px; margin-bottom: 20px; }
-        .ean-input { flex: 1; padding: 14px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1.1rem; font-family: 'JetBrains Mono', monospace; text-align: center; }
-        .ean-input:focus { border-color: var(--accent-blue); outline: none; }
-        .btn-buscar { padding: 14px 24px; background: var(--accent-blue); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .scanner-section h3 { font-size: 1.2rem; margin-bottom: 16px; color: var(--text-primary); }
+        #scanner-container { width: 100%; max-width: 400px; margin: 0 auto 20px; border-radius: 12px; overflow: hidden; }
+        #scanner-container video { width: 100%; border-radius: 12px; }
         .resultado-encontrado { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 12px; padding: 16px; margin-top: 16px; text-align: left; }
         .resultado-encontrado h4 { color: #2e7d32; margin-bottom: 8px; }
         .resultado-no-encontrado { background: #ffebee; border: 2px solid #f44336; border-radius: 12px; padding: 16px; margin-top: 16px; }
@@ -563,6 +560,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
         const WEBHOOK_AUTH = 'https://n8n-n8n.qhekde.easypanel.host/webhook/auth-reparto';
         const WEBHOOK_VERIFICAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/verificar-pin';
@@ -1017,15 +1015,15 @@
                 c.innerHTML = `
                     <div class="scanner-section">
                         <h3>Escanear código de barras</h3>
-                        <p>Escanea un EAN para verificar si está en la lista de reparto</p>
-                        <div class="scanner-input-row">
-                            <input type="text" id="eanInput" class="ean-input" placeholder="Escanea o escribe EAN..." 
-                                   onkeypress="if(event.key==='Enter')buscarEAN()" autofocus>
-                            <button class="btn-buscar" onclick="buscarEAN()">Buscar</button>
-                        </div>
+                        <div id="scanner-container"></div>
                         <div id="resultadoEAN"></div>
+                        <button class="btn-glide" onclick="iniciarScanner()" id="btnIniciarScanner">
+                            ${SVG_CAMERA} Iniciar cámara
+                        </button>
                     </div>
-                `; 
+                `;
+                // Iniciar scanner automáticamente
+                setTimeout(iniciarScanner, 500);
                 return; 
             }
             if (entregas.length === 0) { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>${appData.tabActual === 'reparto' ? 'No hay entregas pendientes' : 'No hay entregas terminadas'}</p></div>`; return; }
@@ -1089,16 +1087,53 @@
         }
 
         function selectRepartidor(r) { appData.repartidorActual = r; saveToLocal(); renderApp(); }
-        function showTab(t) { appData.tabActual = t; saveToLocal(); renderApp(); }
-
-        function buscarEAN() {
-            const ean = document.getElementById('eanInput').value.trim();
-            const resultado = document.getElementById('resultadoEAN');
-            
-            if (!ean) {
-                resultado.innerHTML = '';
-                return;
+        function showTab(t) { 
+            // Detener scanner si cambiamos de pestaña
+            if (window.html5QrCode) {
+                window.html5QrCode.stop().catch(() => {});
             }
+            appData.tabActual = t; 
+            saveToLocal(); 
+            renderApp(); 
+        }
+
+        let scannerActivo = false;
+
+        function iniciarScanner() {
+            const container = document.getElementById('scanner-container');
+            const btnIniciar = document.getElementById('btnIniciarScanner');
+            
+            if (scannerActivo) return;
+            
+            if (btnIniciar) btnIniciar.style.display = 'none';
+            
+            window.html5QrCode = new Html5Qrcode("scanner-container");
+            
+            window.html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 150 },
+                    aspectRatio: 1.777
+                },
+                (decodedText) => {
+                    // Código escaneado
+                    procesarCodigoEscaneado(decodedText);
+                },
+                (errorMessage) => {
+                    // Ignorar errores de escaneo continuo
+                }
+            ).then(() => {
+                scannerActivo = true;
+            }).catch((err) => {
+                console.error('Error al iniciar cámara:', err);
+                container.innerHTML = '<p style="color: red;">Error al acceder a la cámara. Asegúrate de dar permisos.</p>';
+                if (btnIniciar) btnIniciar.style.display = 'block';
+            });
+        }
+
+        function procesarCodigoEscaneado(ean) {
+            const resultado = document.getElementById('resultadoEAN');
             
             // Buscar en la lista de artículos solo por EAN
             const articulo = appData.articulos.find(a => a.ean === ean);
@@ -1118,6 +1153,9 @@
                         ` : ''}
                     </div>
                 `;
+                
+                // Vibrar si está disponible
+                if (navigator.vibrate) navigator.vibrate(200);
             } else {
                 resultado.innerHTML = `
                     <div class="resultado-no-encontrado">
@@ -1125,11 +1163,15 @@
                         <p>El código ${ean} no está en la lista de reparto de hoy</p>
                     </div>
                 `;
+                
+                // Vibrar patrón diferente para error
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             }
             
-            // Limpiar input para siguiente escaneo
-            document.getElementById('eanInput').value = '';
-            document.getElementById('eanInput').focus();
+            // Limpiar resultado después de 4 segundos
+            setTimeout(() => {
+                if (resultado) resultado.innerHTML = '';
+            }, 4000);
         }
 
         function init() {
