@@ -367,6 +367,41 @@
             color: #c62828;
         }
 
+        .foto-visor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .foto-visor.active {
+            display: flex;
+        }
+
+        .foto-visor img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            touch-action: pinch-zoom;
+        }
+
+        .foto-visor-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 10000;
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -565,6 +600,11 @@
             <div style="width: 32px;"></div>
         </div>
         <div class="producto-detail-content" id="productoDetailContent"></div>
+    </div>
+
+    <div class="foto-visor" id="fotoVisor" onclick="cerrarVisorFoto()">
+        <div class="foto-visor-close">✕</div>
+        <img id="fotoVisorImg" src="" alt="Foto">
     </div>
 
     <div class="modal-overlay" id="cobroModal">
@@ -1204,6 +1244,48 @@
             renderProductoDetail();
         }
 
+        function abrirVisorFoto(imgUrl) {
+            const visor = document.getElementById('fotoVisor');
+            const img = document.getElementById('fotoVisorImg');
+            // Usar versión de mayor resolución para el visor
+            img.src = imgUrl.replace('sz=w800', 'sz=w2000');
+            visor.classList.add('active');
+        }
+
+        function cerrarVisorFoto() {
+            document.getElementById('fotoVisor').classList.remove('active');
+        }
+
+        async function borrarFotoDrive(id) {
+            if (!confirm('¿Borrar foto de Drive?')) return;
+            
+            const a = appData.articulos.find(x => x.id === id); 
+            if (!a) return;
+            
+            // Borrar enlace en Google Sheets
+            try {
+                await fetch(WEBHOOK_GUARDAR, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        cambios: [{
+                            type: 'fotoDrive',
+                            rowNumber: a.rowNumber,
+                            value: ''
+                        }]
+                    })
+                });
+            } catch (err) {
+                console.error('Error borrando foto:', err);
+            }
+            
+            // Limpiar datos locales
+            a.fotoDriveLink = null;
+            a.fotoLocal = null;
+            saveToLocal();
+            renderProductoDetail();
+        }
+
         function renderApp() {
             document.getElementById('headerDate').textContent = appData.fecha || new Date().toLocaleDateString('es-ES');
             if (appData.usuarioActual) document.getElementById('userBadgeName').textContent = appData.emailActual;
@@ -1325,7 +1407,8 @@
                 const driveId = a.fotoDriveLink.match(/\/d\/([^\/]+)/)?.[1] || '';
                 const imgUrl = driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w800` : a.fotoDriveLink;
                 html += `<div class="foto-status foto-ok">✓ Foto subida a Drive</div>`;
-                html += `<img src="${imgUrl}" class="foto-preview" onerror="this.style.display='none'">`;
+                html += `<img src="${imgUrl}" class="foto-preview" onclick="abrirVisorFoto('${imgUrl}')" onerror="this.style.display='none'">`;
+                html += `<button class="btn-glide btn-borrar" onclick="borrarFotoDrive('${a.id}')">🗑️ Borrar foto</button>`;
             } else if (a.fotoSubiendo) {
                 // Subiendo foto
                 html += `<div class="foto-status foto-subiendo">⏳ Subiendo foto...</div>`;
