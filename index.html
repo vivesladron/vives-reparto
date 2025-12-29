@@ -1315,16 +1315,14 @@
         function renderProductoDetail() {
             const a = appData.articulos.find(x => x.id === appData.productoSeleccionado); if (!a) return;
             const e = appData.entregas.find(x => x.documento === a.documento);
-            const canEdit = puedeEditarAlmacen();
-            let html = `<div class="producto-detail-qty">${a.cantidad}x</div><div class="producto-detail-nombre">${a.articulo}</div><div class="producto-detail-almacen">Almacén: ${ALMACEN_NOMBRES[a.almacen]}</div>`;
+            let html = `<div class="producto-detail-qty">${a.cantidad}x</div><div class="producto-detail-nombre">${a.articulo}</div><div class="producto-detail-almacen">${ALMACEN_NOMBRES[a.almacen]}</div>`;
             if (e) html += `<div class="producto-detail-info">${e.hora} ${e.cliente}</div><div class="producto-detail-info">${e.direccion}</div>`;
-            if (canEdit) html += `<div class="almacen-selector">${ALMACENES.map(x => `<button class="almacen-btn ${a.almacen === x ? 'active' : ''}" onclick="cambiarAlmacen('${a.id}','${x}')">${x}</button>`).join('')}</div>`;
             
             // Estado de la foto
             if (a.fotoDriveLink) {
-                // Foto ya subida a Drive
+                // Foto ya subida a Drive - mostrar directamente
                 html += `<div class="foto-status foto-ok">✓ Foto subida a Drive</div>`;
-                html += `<a href="${a.fotoDriveLink}" target="_blank" class="btn-glide">📷 Ver foto en Drive</a>`;
+                html += `<img src="${a.fotoDriveLink.replace('/view?usp=drivesdk', '/preview')}" class="foto-preview">`;
             } else if (a.fotoSubiendo) {
                 // Subiendo foto
                 html += `<div class="foto-status foto-subiendo">⏳ Subiendo foto...</div>`;
@@ -1332,15 +1330,10 @@
             } else if (a.fotoPendiente) {
                 // Foto pendiente de subir (sin conexión)
                 html += `<div class="foto-status foto-pendiente">⚠️ Foto pendiente de subir (sin conexión)</div>`;
-                if (a.fotoLocal) {
-                    html += `<img src="${a.fotoLocal}" class="foto-preview">`;
-                    html += `<button class="btn-glide" onclick="descargarFoto('${a.id}')">💾 Guardar en iPhone</button>`;
-                }
+                if (a.fotoLocal) html += `<img src="${a.fotoLocal}" class="foto-preview">`;
             } else if (a.fotoLocal) {
                 // Foto local sin subir
                 html += `<img src="${a.fotoLocal}" class="foto-preview">`;
-                html += `<button class="btn-glide" onclick="descargarFoto('${a.id}')">💾 Guardar en iPhone</button>`;
-                html += `<button class="btn-glide btn-borrar" onclick="borrarFoto('${a.id}')">${SVG_ERASER} Borrar foto</button>`;
             } else {
                 // Sin foto - mostrar botón para tomar
                 html += `<button class="btn-glide btn-foto" onclick="tomarFoto('${a.id}')">${SVG_CAMERA} Tomar una foto</button>`;
