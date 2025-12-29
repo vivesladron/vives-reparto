@@ -1533,10 +1533,15 @@
             }
         }
 
-        function init() {
+        async function init() {
             const has = loadFromLocal();
-            if (!has || !appData.usuarioActual) showLogin(); else hideLogin();
-            document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-ES');
+            if (!has || !appData.usuarioActual) {
+                showLogin();
+            } else {
+                hideLogin();
+                await cargarDatosDesdesheets();
+                renderApp();
+            }
         }
 
         init();
