@@ -415,6 +415,7 @@
             font-weight: 600;
             display: none;
             z-index: 150;
+            cursor: pointer;
         }
         .sync-indicator.visible { display: block; }
 
@@ -687,6 +688,14 @@
 
         let syncInProgress = false;
         
+        // Detectar cuando vuelve la conexión
+        window.addEventListener('online', () => {
+            console.log('Conexión recuperada');
+            if (appData.pendingChanges.length > 0) {
+                sincronizarCambios();
+            }
+        });
+        
         function savePendingChange(change) {
             // Buscar si ya existe un cambio pendiente para el mismo item y tipo
             const existingIndex = appData.pendingChanges.findIndex(c => 
@@ -713,10 +722,17 @@
         async function sincronizarCambios() {
             if (appData.pendingChanges.length === 0 || syncInProgress) return;
             
+            // Verificar si hay conexión
+            if (!navigator.onLine) {
+                updateSyncIndicator();
+                return;
+            }
+            
             syncInProgress = true;
             const indicator = document.getElementById('syncIndicator');
             indicator.textContent = '⏳ Guardando...';
             indicator.classList.add('visible');
+            indicator.onclick = null;
             
             // Copiar los cambios actuales para enviar
             const cambiosAEnviar = [...appData.pendingChanges];
@@ -746,19 +762,43 @@
                         setTimeout(sincronizarCambios, 1000);
                     }
                 } else {
-                    indicator.textContent = '⚠️ Error al guardar';
+                    indicator.textContent = '⚠️ Error - Pulsa para reintentar';
+                    indicator.onclick = sincronizarCambios;
                 }
             } catch (e) {
                 console.error(e);
-                indicator.textContent = '⚠️ Error de conexión';
+                indicator.textContent = `⚠️ Sin conexión (${appData.pendingChanges.length})`;
+                indicator.onclick = sincronizarCambios;
+                
+                // Reintentar en 30 segundos si hay conexión
+                setTimeout(() => {
+                    if (navigator.onLine && appData.pendingChanges.length > 0) {
+                        sincronizarCambios();
+                    }
+                }, 30000);
             }
             
             syncInProgress = false;
             
             // Si hay cambios pendientes que se añadieron mientras guardaba, sincronizar
-            if (appData.pendingChanges.length > 0) {
+            if (appData.pendingChanges.length > 0 && navigator.onLine) {
                 window.syncTimeout = setTimeout(sincronizarCambios, 2000);
             }
+        }
+        
+        function updateSyncIndicator() {
+            const ind = document.getElementById('syncIndicator');
+            if (appData.pendingChanges.length > 0) { 
+                ind.classList.add('visible'); 
+                if (!navigator.onLine) {
+                    ind.textContent = `⚠️ Sin conexión (${appData.pendingChanges.length} pendientes)`;
+                    ind.onclick = sincronizarCambios;
+                } else {
+                    ind.textContent = `⏳ ${appData.pendingChanges.length} cambio(s)`; 
+                    ind.onclick = sincronizarCambios;
+                }
+            }
+            else { ind.classList.remove('visible'); }
         }
 
         function updateSyncIndicator() {
@@ -863,8 +903,20 @@
         function getWhatsAppLink(phone) {
             let num = formatPhone(phone);
             if (!num) return null;
-            if (!num.startsWith('+') && !num.startsWith('34')) num = '34' + num;
-            return `https://wa.me/${num.replace(/[^0-9]/g, '')}`;
+            // Limpiar y añadir 00 delante si no tiene prefijo internacional
+            num = num.replace(/[^0-9]/g, '');
+            if (!num.startsWith('00')) {
+                num = '00' + num;
+            }
+            return `https://wa.me/${num}`;
+        }
+        
+        function getTelLink(phone) {
+            let num = formatPhone(phone);
+            if (!num) return null;
+            // Añadir + delante para llamadas internacionales
+            num = num.replace(/[^0-9]/g, '');
+            return `tel:+${num}`;
         }
 
         function getMapsLink(dir, pob, cp) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir + ', ' + pob + ' ' + cp)}`; }
@@ -1067,10 +1119,11 @@
             document.getElementById('detailHeaderText').textContent = e.hora;
             const arts = appData.articulos.filter(a => a.documento === e.documento);
             const tel = e.telefonos[0] || '';
+            const telLink = tel ? getTelLink(tel) : null;
             const maps = getMapsLink(e.direccion, e.poblacion, e.cp);
             const wa = tel ? getWhatsAppLink(tel) : null;
             const canEditAlm = puedeEditarAlmacen();
-            let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="window.location.href='tel:${tel}'">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
+            let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="window.location.href='${telLink}'">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
             if (e.observaciones) html += `<div class="observaciones-box">${e.observaciones}</div>`;
             if (wa) html += `<a href="${wa}" target="_blank" class="btn-glide">${SVG_PHONE} Whatsapp</a>`;
             html += arts.map(a => `<div class="producto-card"><div class="producto-header"><div class="producto-almacen-icon" onclick="event.stopPropagation(); ${canEditAlm ? `toggleAlmacen('${a.id}')` : ''}" style="${canEditAlm ? 'cursor:pointer' : ''}">${a.almacen}</div><div class="producto-info-row" onclick="openProductoDetail('${a.id}')"><div class="producto-qty">${a.cantidad}x</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
