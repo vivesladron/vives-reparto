@@ -117,6 +117,47 @@
             font-weight: 600;
         }
 
+        .user-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            min-width: 180px;
+            overflow: hidden;
+            z-index: 200;
+            margin-top: 8px;
+        }
+
+        .user-menu.visible {
+            display: block;
+        }
+
+        .user-menu-option {
+            padding: 14px 16px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-menu-option:active {
+            background: var(--bg-primary);
+        }
+
+        .user-menu-option.logout {
+            color: var(--accent-red);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .user-badge-container {
+            position: relative;
+        }
+
         .user-badge {
             display: flex;
             align-items: center;
@@ -543,8 +584,14 @@
                     <span class="header-date" id="headerDate"></span>
                     <span class="header-arrow">▼</span>
                 </div>
-                <div class="user-badge" onclick="logout()" id="userBadge">
-                    <span id="userBadgeName">Usuario</span>
+                <div class="user-badge-container">
+                    <div class="user-badge" onclick="toggleUserMenu()" id="userBadge">
+                        <span id="userBadgeName">Usuario</span>
+                    </div>
+                    <div class="user-menu" id="userMenu">
+                        <div class="user-menu-option" onclick="actualizarDatos()">🔄 Actualizar datos</div>
+                        <div class="user-menu-option logout" onclick="logout()">🚪 Cerrar sesión</div>
+                    </div>
                 </div>
             </div>
             <div class="filtro-dropdown" id="filtroDropdown"></div>
@@ -726,7 +773,28 @@
 
         function mostrarError(msg) { document.getElementById('loginError').textContent = msg; }
 
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('visible');
+        }
+
+        // Cerrar menú al pulsar fuera
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('userMenu');
+            const badge = document.getElementById('userBadge');
+            if (menu && !menu.contains(e.target) && !badge.contains(e.target)) {
+                menu.classList.remove('visible');
+            }
+        });
+
+        async function actualizarDatos() {
+            document.getElementById('userMenu').classList.remove('visible');
+            await cargarDatosDesdesheets();
+            renderApp();
+        }
+
         function logout() {
+            document.getElementById('userMenu').classList.remove('visible');
             if (!confirm('¿Cerrar sesión?')) return;
             
             appData.usuarioActual = null; appData.emailActual = null; appData.rolActual = null;
