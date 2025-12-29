@@ -586,6 +586,7 @@
         const WEBHOOK_VERIFICAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/verificar-pin';
         const WEBHOOK_LEER = 'https://n8n-n8n.qhekde.easypanel.host/webhook/leer-reparto';
         const WEBHOOK_GUARDAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/guardar-cambios';
+        const WEBHOOK_FOTO = 'https://n8n-n8n.qhekde.easypanel.host/webhook/subir-foto';
 
         const ESTADOS_PAGO = ['?', '✓', '€'];
         const ALMACENES = ['?', 'A', 'T', 'C', 'R'];
@@ -1042,20 +1043,79 @@
 
         let fotoArticuloActual = null;
         function tomarFoto(id) { fotoArticuloActual = id; document.getElementById('cameraInput').click(); }
-        function handlePhoto(ev) {
-            const file = ev.target.files[0]; if (!file || !fotoArticuloActual) return;
+        
+        async function handlePhoto(ev) {
+            const file = ev.target.files[0]; 
+            if (!file || !fotoArticuloActual) return;
+            
+            const a = appData.articulos.find(x => x.id === fotoArticuloActual); 
+            if (!a) return;
+            
+            const e = appData.entregas.find(x => x.documento === a.documento);
+            const cliente = e ? e.cliente : 'Cliente';
+            const producto = a.articulo;
+            
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const a = appData.articulos.find(x => x.id === fotoArticuloActual); if (!a) return;
-                a.fotoLocal = e.target.result;
-                savePendingChange({ type: 'foto', documento: a.documento, codigo: a.codigo, value: 'foto' });
-                saveToLocal(); renderProductoDetail();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                
+                // Guardar localmente primero
+                a.fotoLocal = base64Data;
+                saveToLocal(); 
+                renderProductoDetail();
+                
+                // Subir a Google Drive
+                try {
+                    const response = await fetch(WEBHOOK_FOTO, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            foto: base64Data,
+                            cliente: cliente,
+                            producto: producto
+                        })
+                    });
+                    
+                    let data = await response.json();
+                    if (Array.isArray(data)) data = data[0];
+                    
+                    if (data.ok) {
+                        a.fotoDriveLink = data.link;
+                        saveToLocal();
+                        alert('✓ Foto guardada en Google Drive');
+                    }
+                } catch (err) {
+                    console.error('Error subiendo foto:', err);
+                    alert('⚠️ Foto guardada localmente. Se subirá cuando haya conexión.');
+                }
             };
             reader.readAsDataURL(file);
         }
+        
+        function descargarFoto(id) {
+            const a = appData.articulos.find(x => x.id === id);
+            if (!a || !a.fotoLocal) return;
+            
+            const e = appData.entregas.find(x => x.documento === a.documento);
+            const cliente = e ? e.cliente : 'Cliente';
+            const producto = a.articulo;
+            const fileName = `${cliente} - ${producto}.jpg`;
+            
+            // Crear enlace de descarga
+            const link = document.createElement('a');
+            link.href = a.fotoLocal;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
         function borrarFoto(id) {
             const a = appData.articulos.find(x => x.id === id); if (!a) return;
-            a.fotoLocal = null; saveToLocal(); renderProductoDetail();
+            a.fotoLocal = null; 
+            a.fotoDriveLink = null;
+            saveToLocal(); 
+            renderProductoDetail();
         }
 
         function renderApp() {
@@ -1174,7 +1234,11 @@
             if (e) html += `<div class="producto-detail-info">${e.hora} ${e.cliente}</div><div class="producto-detail-info">${e.direccion}</div>`;
             if (canEdit) html += `<div class="almacen-selector">${ALMACENES.map(x => `<button class="almacen-btn ${a.almacen === x ? 'active' : ''}" onclick="cambiarAlmacen('${a.id}','${x}')">${x}</button>`).join('')}</div>`;
             html += `<button class="btn-glide btn-foto" onclick="tomarFoto('${a.id}')">${SVG_CAMERA} Tomar una foto</button>`;
-            if (a.fotoLocal) html += `<img src="${a.fotoLocal}" class="foto-preview"><button class="btn-glide" onclick="borrarFoto('${a.id}')">${SVG_ERASER} Borrar foto</button>`;
+            if (a.fotoLocal) {
+                html += `<img src="${a.fotoLocal}" class="foto-preview">`;
+                html += `<button class="btn-glide" onclick="descargarFoto('${a.id}')">💾 Guardar en iPhone</button>`;
+                html += `<button class="btn-glide btn-borrar" onclick="borrarFoto('${a.id}')">${SVG_ERASER} Borrar foto</button>`;
+            }
             html += `<div class="notas-section"><div class="notas-label">Notas</div><textarea class="notas-input" placeholder="Notas del producto..."></textarea></div>`;
             document.getElementById('productoDetailContent').innerHTML = html;
         }
