@@ -1326,7 +1326,6 @@
                 const imgUrl = driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w800` : a.fotoDriveLink;
                 html += `<div class="foto-status foto-ok">✓ Foto subida a Drive</div>`;
                 html += `<img src="${imgUrl}" class="foto-preview" onerror="this.style.display='none'">`;
-            }
             } else if (a.fotoSubiendo) {
                 // Subiendo foto
                 html += `<div class="foto-status foto-subiendo">⏳ Subiendo foto...</div>`;
