@@ -344,6 +344,29 @@
 
         .foto-preview { max-width: 100%; border-radius: 12px; margin: 16px 0; }
 
+        .foto-status {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin: 12px 0;
+            text-align: center;
+        }
+        
+        .foto-ok {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .foto-subiendo {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .foto-pendiente {
+            background: #ffebee;
+            color: #c62828;
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -911,7 +934,10 @@
                 cantidad: r['CANTIDAD'] || 1, 
                 almacen: convertirAlmacen(r['ALMACÉN'] || r['ALMACEN']), 
                 ean: r['EAN'] || '',
+                fotoDriveLink: r['FOTO_DRIVE'] || null,
                 fotoLocal: null,
+                fotoSubiendo: false,
+                fotoPendiente: false,
                 rowNumber: r['row_number']
             }));
             appData.repartidores = ['TODOS', ...new Set(appData.entregas.map(e => e.repartidor))];
@@ -1042,6 +1068,8 @@
         }
 
         let fotoArticuloActual = null;
+        let fotosPendientes = []; // Fotos pendientes de subir
+        
         function tomarFoto(id) { fotoArticuloActual = id; document.getElementById('cameraInput').click(); }
         
         async function handlePhoto(ev) {
@@ -1056,41 +1084,97 @@
             const producto = a.articulo;
             
             const reader = new FileReader();
-            reader.onload = async function(e) {
-                const base64Data = e.target.result;
+            reader.onload = async function(evt) {
+                const base64Data = evt.target.result;
                 
                 // Guardar localmente primero
                 a.fotoLocal = base64Data;
+                a.fotoSubiendo = true;
                 saveToLocal(); 
                 renderProductoDetail();
                 
-                // Subir a Google Drive
-                try {
-                    const response = await fetch(WEBHOOK_FOTO, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            foto: base64Data,
-                            cliente: cliente,
-                            producto: producto
-                        })
-                    });
-                    
-                    let data = await response.json();
-                    if (Array.isArray(data)) data = data[0];
-                    
-                    if (data.ok) {
-                        a.fotoDriveLink = data.link;
-                        saveToLocal();
-                        alert('✓ Foto guardada en Google Drive');
-                    }
-                } catch (err) {
-                    console.error('Error subiendo foto:', err);
-                    alert('⚠️ Foto guardada localmente. Se subirá cuando haya conexión.');
-                }
+                // Intentar subir a Google Drive
+                await subirFotoADrive(a, cliente, producto, base64Data);
             };
             reader.readAsDataURL(file);
         }
+        
+        async function subirFotoADrive(articulo, cliente, producto, base64Data) {
+            if (!navigator.onLine) {
+                // Sin conexión - guardar para después
+                articulo.fotoSubiendo = false;
+                articulo.fotoPendiente = true;
+                fotosPendientes.push({
+                    articuloId: articulo.id,
+                    cliente: cliente,
+                    producto: producto,
+                    foto: base64Data,
+                    rowNumber: articulo.rowNumber
+                });
+                localStorage.setItem('fotosPendientes', JSON.stringify(fotosPendientes));
+                saveToLocal();
+                renderProductoDetail();
+                alert('⚠️ Sin conexión. La foto se subirá automáticamente cuando vuelva la conexión.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(WEBHOOK_FOTO, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        foto: base64Data,
+                        cliente: cliente,
+                        producto: producto,
+                        rowNumber: articulo.rowNumber
+                    })
+                });
+                
+                let data = await response.json();
+                if (Array.isArray(data)) data = data[0];
+                
+                if (data.ok) {
+                    articulo.fotoDriveLink = data.link;
+                    articulo.fotoSubiendo = false;
+                    articulo.fotoPendiente = false;
+                    articulo.fotoLocal = null; // Limpiar local ya que está en Drive
+                    saveToLocal();
+                    renderProductoDetail();
+                }
+            } catch (err) {
+                console.error('Error subiendo foto:', err);
+                articulo.fotoSubiendo = false;
+                articulo.fotoPendiente = true;
+                fotosPendientes.push({
+                    articuloId: articulo.id,
+                    cliente: cliente,
+                    producto: producto,
+                    foto: base64Data,
+                    rowNumber: articulo.rowNumber
+                });
+                localStorage.setItem('fotosPendientes', JSON.stringify(fotosPendientes));
+                saveToLocal();
+                renderProductoDetail();
+                alert('⚠️ Error de conexión. La foto se subirá automáticamente cuando vuelva la conexión.');
+            }
+        }
+        
+        // Subir fotos pendientes cuando vuelve la conexión
+        window.addEventListener('online', async () => {
+            const pendientes = JSON.parse(localStorage.getItem('fotosPendientes') || '[]');
+            if (pendientes.length === 0) return;
+            
+            for (const foto of pendientes) {
+                const a = appData.articulos.find(x => x.id === foto.articuloId);
+                if (a) {
+                    await subirFotoADrive(a, foto.cliente, foto.producto, foto.foto);
+                }
+            }
+            
+            // Limpiar pendientes subidas
+            fotosPendientes = [];
+            localStorage.removeItem('fotosPendientes');
+        });
         
         function descargarFoto(id) {
             const a = appData.articulos.find(x => x.id === id);
@@ -1114,6 +1198,8 @@
             const a = appData.articulos.find(x => x.id === id); if (!a) return;
             a.fotoLocal = null; 
             a.fotoDriveLink = null;
+            a.fotoSubiendo = false;
+            a.fotoPendiente = false;
             saveToLocal(); 
             renderProductoDetail();
         }
@@ -1233,12 +1319,33 @@
             let html = `<div class="producto-detail-qty">${a.cantidad}x</div><div class="producto-detail-nombre">${a.articulo}</div><div class="producto-detail-almacen">Almacén: ${ALMACEN_NOMBRES[a.almacen]}</div>`;
             if (e) html += `<div class="producto-detail-info">${e.hora} ${e.cliente}</div><div class="producto-detail-info">${e.direccion}</div>`;
             if (canEdit) html += `<div class="almacen-selector">${ALMACENES.map(x => `<button class="almacen-btn ${a.almacen === x ? 'active' : ''}" onclick="cambiarAlmacen('${a.id}','${x}')">${x}</button>`).join('')}</div>`;
-            html += `<button class="btn-glide btn-foto" onclick="tomarFoto('${a.id}')">${SVG_CAMERA} Tomar una foto</button>`;
-            if (a.fotoLocal) {
+            
+            // Estado de la foto
+            if (a.fotoDriveLink) {
+                // Foto ya subida a Drive
+                html += `<div class="foto-status foto-ok">✓ Foto subida a Drive</div>`;
+                html += `<a href="${a.fotoDriveLink}" target="_blank" class="btn-glide">📷 Ver foto en Drive</a>`;
+            } else if (a.fotoSubiendo) {
+                // Subiendo foto
+                html += `<div class="foto-status foto-subiendo">⏳ Subiendo foto...</div>`;
+                if (a.fotoLocal) html += `<img src="${a.fotoLocal}" class="foto-preview">`;
+            } else if (a.fotoPendiente) {
+                // Foto pendiente de subir (sin conexión)
+                html += `<div class="foto-status foto-pendiente">⚠️ Foto pendiente de subir (sin conexión)</div>`;
+                if (a.fotoLocal) {
+                    html += `<img src="${a.fotoLocal}" class="foto-preview">`;
+                    html += `<button class="btn-glide" onclick="descargarFoto('${a.id}')">💾 Guardar en iPhone</button>`;
+                }
+            } else if (a.fotoLocal) {
+                // Foto local sin subir
                 html += `<img src="${a.fotoLocal}" class="foto-preview">`;
                 html += `<button class="btn-glide" onclick="descargarFoto('${a.id}')">💾 Guardar en iPhone</button>`;
                 html += `<button class="btn-glide btn-borrar" onclick="borrarFoto('${a.id}')">${SVG_ERASER} Borrar foto</button>`;
+            } else {
+                // Sin foto - mostrar botón para tomar
+                html += `<button class="btn-glide btn-foto" onclick="tomarFoto('${a.id}')">${SVG_CAMERA} Tomar una foto</button>`;
             }
+            
             html += `<div class="notas-section"><div class="notas-label">Notas</div><textarea class="notas-input" placeholder="Notas del producto..."></textarea></div>`;
             document.getElementById('productoDetailContent').innerHTML = html;
         }
