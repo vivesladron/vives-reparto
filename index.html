@@ -1321,8 +1321,12 @@
             // Estado de la foto
             if (a.fotoDriveLink) {
                 // Foto ya subida a Drive - mostrar directamente
+                // Extraer el ID del archivo de Drive y usar formato de thumbnail
+                const driveId = a.fotoDriveLink.match(/\/d\/([^\/]+)/)?.[1] || '';
+                const imgUrl = driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w800` : a.fotoDriveLink;
                 html += `<div class="foto-status foto-ok">✓ Foto subida a Drive</div>`;
-                html += `<img src="${a.fotoDriveLink.replace('/view?usp=drivesdk', '/preview')}" class="foto-preview">`;
+                html += `<img src="${imgUrl}" class="foto-preview" onerror="this.style.display='none'">`;
+            }
             } else if (a.fotoSubiendo) {
                 // Subiendo foto
                 html += `<div class="foto-status foto-subiendo">⏳ Subiendo foto...</div>`;
