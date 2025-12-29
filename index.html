@@ -903,11 +903,8 @@
         function getWhatsAppLink(phone) {
             let num = formatPhone(phone);
             if (!num) return null;
-            // Limpiar y añadir 00 delante si no tiene prefijo internacional
+            // Solo números, sin + ni 00
             num = num.replace(/[^0-9]/g, '');
-            if (!num.startsWith('00')) {
-                num = '00' + num;
-            }
             return `https://wa.me/${num}`;
         }
         
