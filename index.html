@@ -650,6 +650,7 @@
         const WEBHOOK_LEER = 'https://n8n-n8n.qhekde.easypanel.host/webhook/leer-reparto';
         const WEBHOOK_GUARDAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/guardar-cambios';
         const WEBHOOK_FOTO = 'https://n8n-n8n.qhekde.easypanel.host/webhook/subir-foto';
+        const WEBHOOK_BORRAR_FOTO = 'https://n8n-n8n.qhekde.easypanel.host/webhook/borrar-foto';
 
         const ESTADOS_PAGO = ['?', '✓', '€'];
         const ALMACENES = ['?', 'A', 'T', 'C', 'R'];
@@ -1260,10 +1261,20 @@
             if (!confirm('¿Borrar foto de Drive?')) return;
             
             const a = appData.articulos.find(x => x.id === id); 
-            if (!a) return;
+            if (!a || !a.fotoDriveLink) return;
             
-            // Borrar enlace en Google Sheets
             try {
+                // Borrar archivo de Drive
+                await fetch(WEBHOOK_BORRAR_FOTO, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        fotoDriveLink: a.fotoDriveLink,
+                        rowNumber: a.rowNumber
+                    })
+                });
+                
+                // Borrar enlace en Google Sheets
                 await fetch(WEBHOOK_GUARDAR, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1275,6 +1286,7 @@
                         }]
                     })
                 });
+                
             } catch (err) {
                 console.error('Error borrando foto:', err);
             }
