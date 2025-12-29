@@ -61,16 +61,60 @@
             align-items: center;
         }
 
+        .header-title-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
         .header-title {
             font-size: 1.1rem;
             font-weight: 600;
         }
 
-        .header-subtitle {
-            font-size: 0.8rem;
-            text-align: center;
+        .header-date {
+            font-size: 0.9rem;
             opacity: 0.85;
-            margin-top: 2px;
+        }
+
+        .header-arrow {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            transition: transform 0.2s;
+        }
+
+        .header-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .filtro-dropdown {
+            display: none;
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            margin-top: 10px;
+            padding: 8px;
+        }
+
+        .filtro-dropdown.visible {
+            display: block;
+        }
+
+        .filtro-option {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .filtro-option:active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .filtro-option.active {
+            background: rgba(255,255,255,0.25);
+            font-weight: 600;
         }
 
         .user-badge {
@@ -86,36 +130,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-
-        .filter-bar {
-            background: var(--bg-secondary);
-            padding: 12px 16px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .filter-bar.hidden { display: none; }
-
-        .filter-btn {
-            background: var(--bg-primary);
-            border: none;
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            font-family: inherit;
-        }
-
-        .filter-btn.active {
-            background: var(--accent-blue);
-            color: white;
         }
 
         .time-group {
@@ -466,15 +480,18 @@
     <div id="app">
         <header class="header">
             <div class="header-row">
-                <div class="header-title">Reparto</div>
+                <div class="header-title-area" onclick="toggleFiltroDropdown()">
+                    <span class="header-title">Reparto</span>
+                    <span class="header-date" id="headerDate"></span>
+                    <span class="header-arrow">▼</span>
+                </div>
                 <div class="user-badge" onclick="logout()" id="userBadge">
                     <span id="userBadgeName">Usuario</span>
                 </div>
             </div>
-            <div class="header-subtitle" id="headerDate"></div>
+            <div class="filtro-dropdown" id="filtroDropdown"></div>
         </header>
 
-        <div class="filter-bar" id="filterBar"></div>
         <div class="sync-indicator" id="syncIndicator">⏳ Sincronizando...</div>
 
         <main id="mainContent">
@@ -645,6 +662,8 @@
         function mostrarError(msg) { document.getElementById('loginError').textContent = msg; }
 
         function logout() {
+            if (!confirm('¿Cerrar sesión?')) return;
+            
             appData.usuarioActual = null; appData.emailActual = null; appData.rolActual = null;
             appData.entregas = []; appData.articulos = [];
             localStorage.removeItem('vivesRepartoSession');
@@ -1043,16 +1062,29 @@
             document.getElementById('headerDate').textContent = appData.fecha || new Date().toLocaleDateString('es-ES');
             if (appData.usuarioActual) document.getElementById('userBadgeName').textContent = appData.emailActual;
             
-            // Ocultar filtro en pestaña Lista
-            const filterBar = document.getElementById('filterBar');
-            if (appData.tabActual === 'lista') {
-                filterBar.classList.add('hidden');
-            } else {
-                filterBar.classList.remove('hidden');
-                filterBar.innerHTML = appData.repartidores.map(r => `<button class="filter-btn ${r === appData.repartidorActual ? 'active' : ''}" onclick="selectRepartidor('${r}')">${r}</button>`).join('');
-            }
+            // Actualizar dropdown de filtros
+            const dropdown = document.getElementById('filtroDropdown');
+            dropdown.innerHTML = appData.repartidores.map(r => 
+                `<div class="filtro-option ${r === appData.repartidorActual ? 'active' : ''}" onclick="selectRepartidor('${r}')">${r}</div>`
+            ).join('');
             
             renderMainContent(); updateTabBadges(); updateSyncIndicator();
+        }
+        
+        function toggleFiltroDropdown() {
+            const dropdown = document.getElementById('filtroDropdown');
+            const arrow = document.querySelector('.header-arrow');
+            dropdown.classList.toggle('visible');
+            arrow.classList.toggle('open');
+        }
+        
+        function selectRepartidor(r) { 
+            appData.repartidorActual = r; 
+            saveToLocal(); 
+            // Cerrar dropdown
+            document.getElementById('filtroDropdown').classList.remove('visible');
+            document.querySelector('.header-arrow').classList.remove('open');
+            renderApp(); 
         }
 
         function estaTerminado(estado) {
@@ -1146,8 +1178,6 @@
             html += `<div class="notas-section"><div class="notas-label">Notas</div><textarea class="notas-input" placeholder="Notas del producto..."></textarea></div>`;
             document.getElementById('productoDetailContent').innerHTML = html;
         }
-
-        function selectRepartidor(r) { appData.repartidorActual = r; saveToLocal(); renderApp(); }
         
         async function showTab(t) { 
             // Detener scanner si cambiamos de pestaña
