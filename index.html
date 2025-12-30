@@ -252,23 +252,28 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
-            padding: 3px 0;
+            padding: 4px 0;
         }
 
         .articulo-almacen-mini {
             background: var(--accent-blue);
             color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .articulo-almacen-mini:active {
+            transform: scale(0.9);
         }
 
         .articulo-nombre-mini {
@@ -1174,7 +1179,9 @@
             const idx = ALMACENES.indexOf(a.almacen);
             a.almacen = ALMACENES[(idx + 1) % ALMACENES.length];
             savePendingChange({ type: 'almacen', documento: a.documento, codigo: a.codigo, value: a.almacen, rowNumber: a.rowNumber });
-            saveToLocal(); renderDetail();
+            saveToLocal(); 
+            renderApp();
+            if (appData.entregaSeleccionada) renderDetail();
         }
 
         function marcarTerminado(id) {
@@ -1476,7 +1483,7 @@
             
             let articulosHtml = '';
             if (esAdmin && arts.length > 0) {
-                articulosHtml = `<div class="articulos-preview">${arts.map(a => `<div class="articulo-mini"><span class="articulo-almacen-mini">${a.almacen}</span><span class="articulo-nombre-mini">${a.cantidad}x ${a.articulo}</span></div>`).join('')}</div>`;
+                articulosHtml = `<div class="articulos-preview">${arts.map(a => `<div class="articulo-mini"><span class="articulo-almacen-mini" onclick="event.stopPropagation(); toggleAlmacen('${a.id}')">${a.almacen}</span><span class="articulo-nombre-mini">${a.cantidad}x ${a.articulo}</span></div>`).join('')}</div>`;
             }
             
             return `<div class="entrega-card"><div class="entrega-row">
