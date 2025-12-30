@@ -1642,8 +1642,11 @@
         }
 
         function procesarCodigoEscaneado(codigo) {
+            console.log('Código escaneado:', codigo);
+            
             // Detectar si es URL de EPREL
             if (codigo.includes('eprel.ec.europa.eu')) {
+                console.log('Detectado QR EPREL');
                 procesarUrlEPREL(codigo);
                 return;
             }
