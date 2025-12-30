@@ -607,7 +607,8 @@
         .importe-cobrado strong { font-family: 'JetBrains Mono', monospace; }
 
         .scanner-section { padding: 16px; text-align: center; }
-        .scanner-section h3 { font-size: 1.1rem; margin-bottom: 12px; color: var(--text-primary); }
+        .scanner-section h3 { font-size: 1.1rem; margin-bottom: 4px; color: var(--text-primary); }
+        .scanner-hint { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
         #scanner-container { width: 100%; max-width: 350px; height: 200px; margin: 0 auto 16px; border-radius: 12px; overflow: hidden; background: #000; }
         #scanner-container video { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
         .resultado-encontrado { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 12px; padding: 16px; margin-top: 16px; text-align: left; }
@@ -617,6 +618,16 @@
         .resultado-info { font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px; }
         .resultado-cliente { font-weight: 600; color: var(--accent-blue); }
         .resultado-articulo { font-size: 1rem; font-weight: 600; margin: 8px 0; }
+
+        .scanner-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 20px 0;
+        }
+
+        .btn-modelo {
+            background: var(--accent-orange) !important;
+        }
     </style>
 </head>
 <body>
@@ -662,7 +673,7 @@
             </button>
             <button class="tab-item" onclick="showTab('lista')" id="tabLista">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/><rect x="18" y="14" width="4" height="6" rx="1"/></svg>
-                Lista
+                Escáner
             </button>
             <button class="tab-item" onclick="showTab('terminados')" id="tabTerminados">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -742,6 +753,7 @@
         const WEBHOOK_GUARDAR = 'https://n8n-n8n.qhekde.easypanel.host/webhook/guardar-cambios';
         const WEBHOOK_FOTO = 'https://n8n-n8n.qhekde.easypanel.host/webhook/subir-foto';
         const WEBHOOK_BORRAR_FOTO = 'https://n8n-n8n.qhekde.easypanel.host/webhook/borrar-foto';
+        const WEBHOOK_EXTRAER_MODELO = 'https://n8n-n8n.qhekde.easypanel.host/webhook/extraer-modelo';
 
         const ESTADOS_PAGO = ['?', '✓', '€'];
         const ALMACENES = ['?', 'A', 'T', 'C', 'R'];
@@ -1460,7 +1472,8 @@
             if (appData.tabActual === 'lista') { 
                 c.innerHTML = `
                     <div class="scanner-section">
-                        <h3>Escanear código de barras</h3>
+                        <h3>Escanear código</h3>
+                        <p class="scanner-hint">EAN (código de barras) o QR de EPREL</p>
                         <div id="scanner-container"></div>
                         <div id="resultadoEAN"></div>
                         <button class="btn-glide" onclick="iniciarScanner()" id="btnIniciarScanner">
@@ -1622,14 +1635,18 @@
             }
         }
 
-        function procesarCodigoEscaneado(ean) {
-            const resultado = document.getElementById('resultadoEAN');
+        function procesarCodigoEscaneado(codigo) {
+            // Detectar si es URL de EPREL
+            if (codigo.includes('eprel.ec.europa.eu')) {
+                procesarUrlEPREL(codigo);
+                return;
+            }
             
-            // Buscar en la lista de artículos solo por EAN
-            const articulo = appData.articulos.find(a => a.ean === ean);
+            // Si no es EPREL, tratar como EAN
+            const resultado = document.getElementById('resultadoEAN');
+            const articulo = appData.articulos.find(a => a.ean === codigo);
             
             if (articulo) {
-                // Buscar la entrega asociada
                 const entrega = appData.entregas.find(e => e.documento === articulo.documento);
                 
                 resultado.innerHTML = `
@@ -1644,18 +1661,79 @@
                     </div>
                 `;
                 
-                // Vibrar si está disponible
                 if (navigator.vibrate) navigator.vibrate(200);
             } else {
                 resultado.innerHTML = `
                     <div class="resultado-no-encontrado">
                         <h4>✗ No encontrado</h4>
-                        <p>El código ${ean} no está en la lista de reparto de hoy</p>
+                        <p>El código ${codigo} no está en la lista de reparto de hoy</p>
                     </div>
                 `;
                 
-                // Vibrar patrón diferente para error
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            }
+        }
+
+        async function procesarUrlEPREL(url) {
+            const resultado = document.getElementById('resultadoEAN');
+            resultado.innerHTML = '<div class="foto-status foto-subiendo">⏳ Consultando EPREL...</div>';
+
+            try {
+                const response = await fetch(WEBHOOK_EXTRAER_MODELO, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                let data = await response.json();
+                if (Array.isArray(data)) data = data[0];
+
+                if (data.ok && data.modelo) {
+                    const modelo = data.modelo.toUpperCase();
+                    const articulo = appData.articulos.find(a => 
+                        a.articulo.toUpperCase().includes(modelo) || 
+                        a.codigo?.toUpperCase().includes(modelo)
+                    );
+
+                    if (articulo) {
+                        const entrega = appData.entregas.find(e => e.documento === articulo.documento);
+                        resultado.innerHTML = `
+                            <div class="resultado-encontrado">
+                                <h4>✓ Modelo ${modelo} encontrado</h4>
+                                <div class="resultado-articulo">${articulo.cantidad > 1 ? `<span style="color: var(--accent-red)">${articulo.cantidad}x</span> ` : ''}${articulo.articulo}</div>
+                                ${entrega ? `
+                                    <div class="resultado-cliente">${entrega.cliente}</div>
+                                    <div class="resultado-info">${entrega.direccion}</div>
+                                    <div class="resultado-info">${entrega.hora} - ${entrega.documento}</div>
+                                ` : ''}
+                            </div>
+                        `;
+                        if (navigator.vibrate) navigator.vibrate(200);
+                    } else {
+                        resultado.innerHTML = `
+                            <div class="resultado-no-encontrado">
+                                <h4>✗ Modelo ${modelo} no encontrado</h4>
+                                <p>Este modelo no está en la lista de reparto de hoy</p>
+                            </div>
+                        `;
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    }
+                } else {
+                    resultado.innerHTML = `
+                        <div class="resultado-no-encontrado">
+                            <h4>✗ No se pudo extraer el modelo</h4>
+                            <p>Intenta de nuevo o verifica el QR</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                resultado.innerHTML = `
+                    <div class="resultado-no-encontrado">
+                        <h4>✗ Error de conexión</h4>
+                        <p>No se pudo consultar EPREL</p>
+                    </div>
+                `;
             }
         }
 
