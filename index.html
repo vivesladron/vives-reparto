@@ -1634,12 +1634,25 @@
             }
         }
 
+        // Variables para debounce del scanner
+        let ultimoTiempoEscaneo = 0;
+        const DEBOUNCE_MS = 3000; // 3 segundos entre escaneos
+
         function procesarCodigoEscaneado(codigo) {
+            const ahora = Date.now();
+            
+            // Evitar procesar cualquier código en menos de 3 segundos
+            if (ahora - ultimoTiempoEscaneo < DEBOUNCE_MS) {
+                console.log('Debounce: ignorando escaneo');
+                return;
+            }
+            
+            // Actualizar tiempo
+            ultimoTiempoEscaneo = ahora;
+            
             console.log('Código escaneado:', codigo);
             
-            // Debug visual
             const resultado = document.getElementById('resultadoEAN');
-            resultado.innerHTML = `<div style="background:#ffe0b2;padding:10px;border-radius:8px;margin-bottom:10px;">DEBUG: ${codigo.substring(0, 50)}...</div>`;
             
             // Detectar si es URL de EPREL
             if (codigo.includes('eprel.ec.europa.eu')) {
