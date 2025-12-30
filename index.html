@@ -241,6 +241,41 @@
         .cliente-direccion { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
         .cliente-vendedor { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
         .observaciones-preview { font-size: 0.8rem; color: var(--accent-red); font-weight: 500; margin-top: 4px; }
+
+        .articulos-preview {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .articulo-mini {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            padding: 3px 0;
+        }
+
+        .articulo-almacen-mini {
+            background: var(--accent-blue);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .articulo-nombre-mini {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
         .arrow-icon { color: var(--text-muted); font-size: 1.2rem; }
 
         .detail-view, .producto-detail-view {
@@ -1436,9 +1471,17 @@
         function renderEntregaCard(e) {
             const obs = e.observaciones ? e.observaciones.substring(0, 60) + (e.observaciones.length > 60 ? '...' : '') : '';
             const canEdit = puedeEditarPago();
+            const esAdmin = isAdmin();
+            const arts = esAdmin ? appData.articulos.filter(a => a.documento === e.documento) : [];
+            
+            let articulosHtml = '';
+            if (esAdmin && arts.length > 0) {
+                articulosHtml = `<div class="articulos-preview">${arts.map(a => `<div class="articulo-mini"><span class="articulo-almacen-mini">${a.almacen}</span><span class="articulo-nombre-mini">${a.cantidad}x ${a.articulo}</span></div>`).join('')}</div>`;
+            }
+            
             return `<div class="entrega-card"><div class="entrega-row">
                 <div class="status-icon ${getEstadoPagoClass(e.estadoPago)}" onclick="event.stopPropagation(); ${canEdit ? `toggleEstadoPago('${e.id}')` : ''}" style="${canEdit ? 'cursor:pointer' : 'cursor:default'}">${e.estadoPago}</div>
-                <div class="entrega-info" onclick="openDetail('${e.id}')"><div class="cliente-nombre">${e.cliente}</div><div class="cliente-direccion">${e.direccion}</div><div class="cliente-vendedor">${e.documento} - ${e.vendedor}</div>${obs ? `<div class="observaciones-preview">${obs}</div>` : ''}</div>
+                <div class="entrega-info" onclick="openDetail('${e.id}')"><div class="cliente-nombre">${e.cliente}</div><div class="cliente-direccion">${e.direccion}</div><div class="cliente-vendedor">${e.documento} - ${e.vendedor}</div>${obs ? `<div class="observaciones-preview">${obs}</div>` : ''}${articulosHtml}</div>
                 <div class="repartidor-icon" onclick="event.stopPropagation(); toggleQuienEntrega('${e.id}')">${e.quienEntrega === 'EQ' ? SVG_EQUIPO : e.quienEntrega}</div>
                 <div class="arrow-icon" onclick="openDetail('${e.id}')">›</div></div></div>`;
         }
