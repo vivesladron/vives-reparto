@@ -1526,10 +1526,12 @@
         let telefonoSeleccionado = '';
 
         function mostrarOpcionesTelefono() {
+            console.log('mostrarOpcionesTelefono llamada, tel:', telefonoSeleccionado);
             const tel = telefonoSeleccionado;
             if (!tel) return;
             const telLink = getTelLink(tel);
             const waLink = getWhatsAppLink(tel);
+            console.log('telLink:', telLink, 'waLink:', waLink);
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.innerHTML = `
@@ -1552,7 +1554,7 @@
             telefonoSeleccionado = tel;
             const maps = getMapsLink(e.direccion, e.poblacion, e.cp);
             const canEditAlm = puedeEditarAlmacen();
-            let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="mostrarOpcionesTelefono()">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
+            let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="event.stopPropagation(); mostrarOpcionesTelefono()">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
             if (e.observaciones) html += `<div class="observaciones-box">${e.observaciones}</div>`;
             html += `<button class="btn-glide" onclick="abrirScannerDesdeDetalle()">${SVG_BARCODE} Escanear</button>`;
             html += arts.map(a => `<div class="producto-card"><div class="producto-header"><div class="producto-almacen-icon" onclick="event.stopPropagation(); ${canEditAlm ? `toggleAlmacen('${a.id}')` : ''}" style="${canEditAlm ? 'cursor:pointer' : ''}">${a.almacen}</div><div class="producto-info-row" onclick="openProductoDetail('${a.id}')"><div class="producto-qty">${(a.cantidad > 1 || a.cantidad < 0) ? `<span style="color:var(--accent-red)">${a.cantidad}</span>` : ''}</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
