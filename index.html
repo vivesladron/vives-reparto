@@ -1494,7 +1494,7 @@
         }
 
         function formatCantidad(cantidad) {
-            return (cantidad > 1 || cantidad < 0) ? `<span class="cantidad-multiple">${cantidad}x</span> ` : '';
+            return (cantidad > 1 || cantidad < 0) ? `<span class="cantidad-multiple">${cantidad}</span> ` : '';
         }
 
         function renderEntregaCard(e) {
@@ -1547,10 +1547,10 @@
             const tel = e.telefonos[0] || '';
             const maps = getMapsLink(e.direccion, e.poblacion, e.cp);
             const canEditAlm = puedeEditarAlmacen();
-            let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="mostrarOpcionesTelefono('${tel}')">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
+            let html = `<div class="detail-location"><div class="detail-zona">${e.poblacion} ${e.cp}</div><div class="detail-direccion" onclick="window.open('${maps}','_blank')">${e.direccion}</div><div class="detail-cliente">${e.cliente}</div>${tel ? `<div class="detail-telefono" onclick="mostrarOpcionesTelefono(&quot;${tel}&quot;)">Tel: ${tel}</div>` : ''}<div class="detail-vendedor">Vendedor: ${e.vendedor}</div></div>`;
             if (e.observaciones) html += `<div class="observaciones-box">${e.observaciones}</div>`;
             html += `<button class="btn-glide" onclick="abrirScannerDesdeDetalle()">${SVG_BARCODE} Escanear</button>`;
-            html += arts.map(a => `<div class="producto-card"><div class="producto-header"><div class="producto-almacen-icon" onclick="event.stopPropagation(); ${canEditAlm ? `toggleAlmacen('${a.id}')` : ''}" style="${canEditAlm ? 'cursor:pointer' : ''}">${a.almacen}</div><div class="producto-info-row" onclick="openProductoDetail('${a.id}')"><div class="producto-qty">${(a.cantidad > 1 || a.cantidad < 0) ? `<span style="color:var(--accent-red)">${a.cantidad}x</span>` : ''}</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
+            html += arts.map(a => `<div class="producto-card"><div class="producto-header"><div class="producto-almacen-icon" onclick="event.stopPropagation(); ${canEditAlm ? `toggleAlmacen('${a.id}')` : ''}" style="${canEditAlm ? 'cursor:pointer' : ''}">${a.almacen}</div><div class="producto-info-row" onclick="openProductoDetail('${a.id}')"><div class="producto-qty">${(a.cantidad > 1 || a.cantidad < 0) ? `<span style="color:var(--accent-red)">${a.cantidad}</span>` : ''}</div><div class="producto-nombre">${a.articulo}</div></div></div></div>`).join('');
             if (e.estadoPago === '€' || e.estadoPago === '?') html += `<button class="btn-glide" onclick="abrirModalCobro('${e.id}')">${SVG_MONEY} Cobrar</button>`;
             if (e.importeCobrado) html += `<div class="importe-cobrado"><span>Importe cobrado:</span><strong>${e.importeCobrado.toFixed(2)} €</strong></div>`;
             html += `<div class="notas-section"><div class="notas-label">Notas</div><textarea class="notas-input" placeholder="Añadir notas..." onchange="guardarNotas('${e.id}', this.value)">${e.notas || ''}</textarea></div>`;
@@ -1564,7 +1564,7 @@
         function renderProductoDetail() {
             const a = appData.articulos.find(x => x.id === appData.productoSeleccionado); if (!a) return;
             const e = appData.entregas.find(x => x.documento === a.documento);
-            let html = `${(a.cantidad > 1 || a.cantidad < 0) ? `<div class="producto-detail-qty" style="color: var(--accent-red)">${a.cantidad}x</div>` : ''}<div class="producto-detail-nombre">${a.articulo}</div><div class="producto-detail-almacen">${ALMACEN_NOMBRES[a.almacen]}</div>`;
+            let html = `${(a.cantidad > 1 || a.cantidad < 0) ? `<div class="producto-detail-qty" style="color: var(--accent-red)">${a.cantidad}</div>` : ''}<div class="producto-detail-nombre">${a.articulo}</div><div class="producto-detail-almacen">${ALMACEN_NOMBRES[a.almacen]}</div>`;
             if (e) html += `<div class="producto-detail-info">${e.hora} ${e.cliente}</div><div class="producto-detail-info">${e.direccion}</div>`;
             
             // Estado de la foto
@@ -1706,7 +1706,7 @@
                 resultado.innerHTML = `
                     <div class="resultado-encontrado">
                         <h4>✓ Encontrado en la lista</h4>
-                        <div class="resultado-articulo">${(articulo.cantidad > 1 || articulo.cantidad < 0) ? `<span style="color: var(--accent-red)">${articulo.cantidad}x</span> ` : ''}${articulo.articulo}</div>
+                        <div class="resultado-articulo">${(articulo.cantidad > 1 || articulo.cantidad < 0) ? `<span style="color: var(--accent-red)">${articulo.cantidad}</span> ` : ''}${articulo.articulo}</div>
                         ${entrega ? `
                             <div class="resultado-cliente">${entrega.cliente}</div>
                             <div class="resultado-info">${entrega.direccion}</div>
@@ -1754,7 +1754,7 @@
                         resultado.innerHTML = `
                             <div class="resultado-encontrado">
                                 <h4>✓ Modelo ${modelo} encontrado</h4>
-                                <div class="resultado-articulo">${(articulo.cantidad > 1 || articulo.cantidad < 0) ? `<span style="color: var(--accent-red)">${articulo.cantidad}x</span> ` : ''}${articulo.articulo}</div>
+                                <div class="resultado-articulo">${(articulo.cantidad > 1 || articulo.cantidad < 0) ? `<span style="color: var(--accent-red)">${articulo.cantidad}</span> ` : ''}${articulo.articulo}</div>
                                 ${entrega ? `
                                     <div class="resultado-cliente">${entrega.cliente}</div>
                                     <div class="resultado-info">${entrega.direccion}</div>
