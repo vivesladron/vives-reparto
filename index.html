@@ -1532,7 +1532,7 @@
                 <div class="modal-content" style="text-align:center;">
                     <h3 style="margin-bottom:20px;">📞 ${tel}</h3>
                     <a href="${telLink}" class="btn-glide" style="margin-bottom:10px;display:block;">📞 Llamar</a>
-                    <a href="${waLink}" target="_blank" class="btn-glide" style="margin-bottom:10px;display:block;">${SVG_PHONE} WhatsApp</a>
+                    <a href="${waLink}" target="_blank" class="btn-glide" style="margin-bottom:10px;display:block;">💬 WhatsApp</a>
                     <button class="btn-glide" style="background:#f0f0f0;color:#333;" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
                 </div>
             `;
@@ -1615,7 +1615,7 @@
 
         function abrirScannerDesdeDetalle() {
             closeDetail();
-            showTab('escaner');
+            showTab('lista');
             setTimeout(() => iniciarScanner(), 300);
         }
 
