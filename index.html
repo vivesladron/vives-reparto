@@ -1526,14 +1526,12 @@
         let telefonoSeleccionado = '';
 
         function mostrarOpcionesTelefono() {
-            console.log('mostrarOpcionesTelefono llamada, tel:', telefonoSeleccionado);
             const tel = telefonoSeleccionado;
             if (!tel) return;
             const telLink = getTelLink(tel);
             const waLink = getWhatsAppLink(tel);
-            console.log('telLink:', telLink, 'waLink:', waLink);
             const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
+            modal.className = 'modal-overlay active';
             modal.innerHTML = `
                 <div class="modal-content" style="text-align:center;">
                     <h3 style="margin-bottom:20px;">📞 ${tel}</h3>
