@@ -1654,14 +1654,28 @@
             
             const resultado = document.getElementById('resultadoEAN');
             
-            // Detectar si es URL de EPREL
-            if (codigo.includes('eprel.ec.europa.eu')) {
+            // Detectar si es URL de EPREL (case insensitive)
+            if (codigo.toLowerCase().includes('eprel.ec.europa.eu')) {
                 console.log('Detectado QR EPREL');
-                procesarUrlEPREL(codigo);
+                procesarUrlEPREL(codigo.toLowerCase());
                 return;
             }
             
-            // Si no es EPREL, tratar como EAN
+            // Validar si es un EAN (solo dígitos, 8 o 13 caracteres)
+            const esEAN = /^\d{8}$|^\d{13}$/.test(codigo);
+            
+            if (!esEAN) {
+                resultado.innerHTML = `
+                    <div class="resultado-no-encontrado">
+                        <h4>✗ No es un EAN</h4>
+                        <p>El código escaneado no es un código de barras válido</p>
+                    </div>
+                `;
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                return;
+            }
+            
+            // Buscar EAN en la lista
             const articulo = appData.articulos.find(a => a.ean === codigo);
             
             if (articulo) {
@@ -1684,7 +1698,7 @@
                 resultado.innerHTML = `
                     <div class="resultado-no-encontrado">
                         <h4>✗ No encontrado</h4>
-                        <p>El código ${codigo} no está en la lista de reparto de hoy</p>
+                        <p>El EAN ${codigo} no está en la lista de reparto de hoy</p>
                     </div>
                 `;
                 
