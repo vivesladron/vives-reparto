@@ -239,16 +239,18 @@
         .repartidor-icon svg { width: 24px; height: 24px; fill: white; }
 
         .btn-wa-recordatorio {
-            width: 36px;
-            height: 36px;
+            height: 44px;
+            padding: 0 10px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
             flex-shrink: 0;
             cursor: pointer;
             background: #25D366;
+            color: white;
             margin-top: 4px;
             margin-right: 6px;
         }
@@ -1524,7 +1526,7 @@
                 articulosHtml = `<div class="articulos-preview">${arts.map(a => `<div class="articulo-mini"><span class="articulo-almacen-mini" onclick="event.stopPropagation(); toggleAlmacen('${a.id}')">${a.almacen}</span><span class="articulo-nombre-mini">${formatCantidad(a.cantidad)}${a.articulo}</span></div>`).join('')}</div>`;
             }
             
-            const btnWhatsApp = esAdmin ? `<div class="btn-wa-recordatorio" onclick="event.stopPropagation(); abrirModalRecordatorio('${e.id}')">💬</div>` : '';
+            const btnWhatsApp = esAdmin ? `<div class="btn-wa-recordatorio" onclick="event.stopPropagation(); abrirModalRecordatorio('${e.id}')">Enviar<br>cita</div>` : '';
             
             return `<div class="entrega-card"><div class="entrega-row">
                 <div class="status-icon ${getEstadoPagoClass(e.estadoPago)}" onclick="event.stopPropagation(); ${canEdit ? `toggleEstadoPago('${e.id}')` : ''}" style="${canEdit ? 'cursor:pointer' : 'cursor:default'}">${e.estadoPago}</div>
