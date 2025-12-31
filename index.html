@@ -240,7 +240,7 @@
 
         .btn-wa-recordatorio {
             height: 44px;
-            padding: 0 10px;
+            padding: 0 12px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -253,6 +253,7 @@
             color: white;
             margin-top: 4px;
             margin-right: 6px;
+            white-space: nowrap;
         }
         .btn-wa-recordatorio:active { transform: scale(0.9); }
 
@@ -1526,7 +1527,7 @@
                 articulosHtml = `<div class="articulos-preview">${arts.map(a => `<div class="articulo-mini"><span class="articulo-almacen-mini" onclick="event.stopPropagation(); toggleAlmacen('${a.id}')">${a.almacen}</span><span class="articulo-nombre-mini">${formatCantidad(a.cantidad)}${a.articulo}</span></div>`).join('')}</div>`;
             }
             
-            const btnWhatsApp = esAdmin ? `<div class="btn-wa-recordatorio" onclick="event.stopPropagation(); abrirModalRecordatorio('${e.id}')">Enviar<br>cita</div>` : '';
+            const btnWhatsApp = esAdmin ? `<div class="btn-wa-recordatorio" onclick="event.stopPropagation(); abrirModalRecordatorio('${e.id}')">Enviar cita</div>` : '';
             
             return `<div class="entrega-card"><div class="entrega-row">
                 <div class="status-icon ${getEstadoPagoClass(e.estadoPago)}" onclick="event.stopPropagation(); ${canEdit ? `toggleEstadoPago('${e.id}')` : ''}" style="${canEdit ? 'cursor:pointer' : 'cursor:default'}">${e.estadoPago}</div>
@@ -1650,7 +1651,9 @@ ${entrega.vendedor}`
             
             // Formatear teléfono para WhatsApp
             const telFormateado = telefono.replace(/[^0-9]/g, '');
-            const url = `https://wa.me/${telFormateado}?text=${encodeURIComponent(mensaje)}`;
+            
+            // Usar protocolo whatsapp:// para abrir app de escritorio
+            const url = `whatsapp://send?phone=${telFormateado}&text=${encodeURIComponent(mensaje)}`;
             
             window.open(url, '_blank');
             document.querySelector('.modal-overlay').remove();
