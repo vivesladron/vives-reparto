@@ -238,6 +238,22 @@
         .repartidor-icon:active { transform: scale(0.9); }
         .repartidor-icon svg { width: 24px; height: 24px; fill: white; }
 
+        .btn-wa-recordatorio {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            background: #25D366;
+            margin-top: 4px;
+            margin-right: 6px;
+        }
+        .btn-wa-recordatorio:active { transform: scale(0.9); }
+
         .entrega-info { flex: 1; min-width: 0; }
         .cliente-nombre { font-weight: 600; font-size: 0.95rem; color: var(--accent-blue); margin-bottom: 2px; }
         .cliente-direccion { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
@@ -1508,9 +1524,12 @@
                 articulosHtml = `<div class="articulos-preview">${arts.map(a => `<div class="articulo-mini"><span class="articulo-almacen-mini" onclick="event.stopPropagation(); toggleAlmacen('${a.id}')">${a.almacen}</span><span class="articulo-nombre-mini">${formatCantidad(a.cantidad)}${a.articulo}</span></div>`).join('')}</div>`;
             }
             
+            const btnWhatsApp = esAdmin ? `<div class="btn-wa-recordatorio" onclick="event.stopPropagation(); abrirModalRecordatorio('${e.id}')">💬</div>` : '';
+            
             return `<div class="entrega-card"><div class="entrega-row">
                 <div class="status-icon ${getEstadoPagoClass(e.estadoPago)}" onclick="event.stopPropagation(); ${canEdit ? `toggleEstadoPago('${e.id}')` : ''}" style="${canEdit ? 'cursor:pointer' : 'cursor:default'}">${e.estadoPago}</div>
                 <div class="entrega-info" onclick="openDetail('${e.id}')"><div class="cliente-nombre">${e.cliente}</div><div class="cliente-direccion">${e.direccion}</div><div class="cliente-vendedor">${e.documento} - ${e.vendedor}</div>${obs ? `<div class="observaciones-preview">${obs}</div>` : ''}${articulosHtml}</div>
+                ${btnWhatsApp}
                 <div class="repartidor-icon" onclick="event.stopPropagation(); toggleQuienEntrega('${e.id}')">${e.quienEntrega === 'EQ' ? SVG_EQUIPO : e.quienEntrega}</div>
                 <div class="arrow-icon" onclick="openDetail('${e.id}')">›</div></div></div>`;
         }
@@ -1518,6 +1537,121 @@
         function updateTabBadges() {
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab${appData.tabActual.charAt(0).toUpperCase() + appData.tabActual.slice(1)}`)?.classList.add('active');
+        }
+
+        // Función para obtener día de la semana en diferentes idiomas
+        function getDiaSemana(fecha, idioma) {
+            const dias = {
+                'es': ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+                'en': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                'de': ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                'fr': ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
+            };
+            // fecha viene como "31-12-2025"
+            const partes = fecha.split('-');
+            const d = new Date(partes[2], partes[1] - 1, partes[0]);
+            return dias[idioma][d.getDay()];
+        }
+
+        function generarMensajeRecordatorio(entrega, idioma) {
+            const diaSemana = getDiaSemana(entrega.dia, idioma);
+            const partesFecha = entrega.dia.split('-');
+            const fechaCorta = `${partesFecha[0]}/${partesFecha[1]}`;
+            
+            const mensajes = {
+                'es': `*Vives Tien21*
+le recuerda su cita del próximo
+*${diaSemana} ${fechaCorta} entre ${entrega.hora}*
+Un saludo
+${entrega.vendedor}`,
+                'en': `*Vives Tien21*
+would like to remind you of your appointment next
+*${diaSemana} ${fechaCorta} between ${entrega.hora}*
+Kind Regards
+${entrega.vendedor}`,
+                'de': `*Vives Tien21*
+erinnert Sie an Ihren Termin am nächsten
+*${diaSemana} ${fechaCorta} zwischen ${entrega.hora}*
+Mit freundlichen Grüssen
+${entrega.vendedor}`,
+                'fr': `*Vives Tien21*
+souhaite vous rappeler votre rendez-vous
+*${diaSemana} ${fechaCorta} entre ${entrega.hora}*
+Merci
+${entrega.vendedor}`
+            };
+            
+            return mensajes[idioma];
+        }
+
+        function abrirModalRecordatorio(entregaId) {
+            const e = appData.entregas.find(x => x.id === entregaId);
+            if (!e) return;
+            
+            const telefonosDisponibles = e.telefonos.filter(t => t && t.trim());
+            if (telefonosDisponibles.length === 0) {
+                alert('No hay teléfonos disponibles para esta entrega');
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 class="modal-title">📱 Enviar recordatorio</h3>
+                    <div style="margin-bottom:16px;">
+                        <label style="font-weight:600;display:block;margin-bottom:8px;">Idioma:</label>
+                        <select id="selectIdioma" class="modal-input" style="text-align:left;">
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="en">🇬🇧 English</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                            <option value="fr">🇫🇷 Français</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="font-weight:600;display:block;margin-bottom:8px;">Teléfono:</label>
+                        <select id="selectTelefono" class="modal-input" style="text-align:left;">
+                            ${telefonosDisponibles.map((t, i) => `<option value="${t}">Tel ${i + 1}: ${t}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="font-weight:600;display:block;margin-bottom:8px;">Vista previa:</label>
+                        <div id="previaMensaje" style="background:#f5f5f5;padding:12px;border-radius:8px;white-space:pre-wrap;font-size:0.9rem;"></div>
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="modal-btn" style="background:#f0f0f0;color:#333;" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                        <button class="modal-btn" style="background:#25D366;color:white;" onclick="enviarRecordatorioWA('${entregaId}')">Enviar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = (ev) => { if (ev.target === modal) modal.remove(); };
+            
+            // Actualizar vista previa al cambiar idioma
+            const actualizarPrevia = () => {
+                const idioma = document.getElementById('selectIdioma').value;
+                const mensaje = generarMensajeRecordatorio(e, idioma);
+                document.getElementById('previaMensaje').textContent = mensaje;
+            };
+            
+            document.getElementById('selectIdioma').addEventListener('change', actualizarPrevia);
+            actualizarPrevia();
+        }
+
+        function enviarRecordatorioWA(entregaId) {
+            const e = appData.entregas.find(x => x.id === entregaId);
+            if (!e) return;
+            
+            const idioma = document.getElementById('selectIdioma').value;
+            const telefono = document.getElementById('selectTelefono').value;
+            const mensaje = generarMensajeRecordatorio(e, idioma);
+            
+            // Formatear teléfono para WhatsApp
+            const telFormateado = telefono.replace(/[^0-9]/g, '');
+            const url = `https://wa.me/${telFormateado}?text=${encodeURIComponent(mensaje)}`;
+            
+            window.open(url, '_blank');
+            document.querySelector('.modal-overlay').remove();
         }
 
         function openDetail(id) { appData.entregaSeleccionada = id; renderDetail(); document.getElementById('detailView').classList.add('active'); }
