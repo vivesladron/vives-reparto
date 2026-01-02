@@ -1829,19 +1829,28 @@ await window.html5QrCode.start(
   }
 );
 scannerActivo = true;
-
+// Intentar aplicar zoom para facilitar el escaneo (si el iPhone lo permite)
+try {
+  const track = window.html5QrCode.getRunningTrack?.();
+  const caps = track?.getCapabilities?.();
+  if (caps?.zoom) {
+    const z = Math.min(2, caps.zoom.max); // zoom x2
+    await track.applyConstraints({
+      advanced: [{ zoom: z }]
+    });
+  }
+} catch (e) {
+  // Si el dispositivo no soporta zoom, no hacemos nada
+}
   } catch (err) {
     console.error('Error al iniciar cámara:', err?.name, err?.message, err);
 const errorBox = document.getElementById('scanner-error');
 if (errorBox) {
   errorBox.textContent = 'Error al acceder a la cámara.';
 }
-
     if (btnIniciar) btnIniciar.style.display = 'block';
   }
 }
-
-
         // Variables para debounce del scanner
         let ultimoTiempoEscaneo = 0;
         const DEBOUNCE_MS = 3000; // 3 segundos entre escaneos
