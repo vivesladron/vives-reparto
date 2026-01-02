@@ -1518,6 +1518,7 @@
                         <h3>Escanear código</h3>
 
                         <div id="scanner-container"></div>
+                        <div id="scanner-error" style="color:red; padding:12px;"></div>
                         <div id="resultadoEAN"></div>
                         <button class="btn-glide" onclick="iniciarScanner()" id="btnIniciarScanner">
                             ${SVG_CAMERA} Iniciar cámara
@@ -1814,29 +1815,28 @@ async function iniciarScanner() {
   };
 
   try {
-    await window.html5QrCode.start(
-      {
-        facingMode: "environment",
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-      },
-      {
-        fps: 12,          // más estable en iPhone para EAN que 15
-        qrbox: qrboxFn
-      },
-      (decodedText) => {
-        procesarCodigoEscaneado(decodedText);
-      },
-      () => {
-        // Ignorar errores de escaneo continuo
-      }
-    );
-    scannerActivo = true;
+await window.html5QrCode.start(
+  { facingMode: "environment" },
+  {
+    fps: 12,
+    qrbox: { width: 300, height: 300 }
+  },
+  (decodedText) => {
+    procesarCodigoEscaneado(decodedText);
+  },
+  () => {
+    // Ignorar errores de escaneo continuo
+  }
+);
+scannerActivo = true;
+
   } catch (err) {
     console.error('Error al iniciar cámara:', err?.name, err?.message, err);
-    if (container) {
-      container.innerHTML = '<p style="color: red; padding: 20px;">Error al acceder a la cámara. Asegúrate de dar permisos.</p>';
-    }
+const errorBox = document.getElementById('scanner-error');
+if (errorBox) {
+  errorBox.textContent = 'Error al acceder a la cámara.';
+}
+
     if (btnIniciar) btnIniciar.style.display = 'block';
   }
 }
