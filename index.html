@@ -1798,79 +1798,75 @@ async function abrirScannerDesdeDetalle() {
 async function iniciarScanner() {
   const container = document.getElementById('scanner-container');
   const btnIniciar = document.getElementById('btnIniciarScanner');
+  const errorBox = document.getElementById('scanner-error');
 
   if (scannerActivo) return;
 
   if (btnIniciar) btnIniciar.style.display = 'none';
+  if (errorBox) errorBox.textContent = '';
 
-  // Crear nueva instancia si no existe
+  // Asegurar contenedor limpio (evita estados raros si hubo errores previos)
+  if (container) container.innerHTML = '';
+
+  // Crear instancia si no existe
   if (!window.html5QrCode) {
     window.html5QrCode = new Html5Qrcode("scanner-container");
   }
 
-  // Recuadro grande (mejor para EAN) y adaptativo al tamaño de pantalla
+  // Recuadro adaptativo (equilibrio bueno para EAN-13 + QR)
   const qrboxFn = (vw, vh) => {
-    const size = Math.floor(Math.min(vw, vh) * 0.80); // 80% del lado corto
+    const size = Math.floor(Math.min(vw, vh) * 0.72);
     return { width: size, height: size };
   };
 
   try {
-await window.html5QrCode.start(
-  { facingMode: "environment" },
-  {
-    fps: 12,
-    qrbox: { width: 300, height: 300 }
-  },
-  (decodedText) => {
-    procesarCodigoEscaneado(decodedText);
-  },
-  () => {
-    // Ignorar errores de escaneo continuo
-  }
-);
-scannerActivo = true;
-const errorBox = document.getElementById('scanner-error');
+    await window.html5QrCode.start(
+      { facingMode: "environment" },
+      {
+        fps: 12,
+        qrbox: qrboxFn
+      },
+      (decodedText) => {
+        procesarCodigoEscaneado(decodedText);
+      },
+      () => {
+        // Ignorar errores de escaneo continuo
+      }
+    );
 
-try {
-  const track = window.html5QrCode.getRunningTrack?.();
-  const caps = track?.getCapabilities?.();
-  if (errorBox) {
-    errorBox.textContent = caps?.zoom
-      ? `Zoom soportado (max: ${caps.zoom.max})`
-      : 'Zoom NO soportado en este iPhone/Safari';
-  }
-} catch (e) {
-  if (errorBox) errorBox.textContent = 'No se pudo leer capabilities de cámara';
-}
-function aplicarZoomUnaVez() {
-  try {
-    const track = window.html5QrCode.getRunningTrack?.();
-    const caps = track?.getCapabilities?.();
-    if (!caps?.zoom) return;
+    scannerActivo = true;
 
-    const z = Math.min(2, caps.zoom.max);
-    track.applyConstraints({
-      advanced: [{ zoom: z }]
-    }).catch(() => {});
-  } catch (e) {}
-}
+    // Best-effort: pedir más resolución tras arrancar (iOS puede ignorarlo)
+    try {
+      const track = window.html5QrCode.getRunningTrack?.();
+      await track?.applyConstraints?.({
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      });
+    } catch (e) {
+      // No hacer nada si iOS lo rechaza
+    }
 
-// aplicar ahora y repetir una vez (html5-qrcode a veces pisa constraints al iniciar)
-aplicarZoomUnaVez();
-setTimeout(aplicarZoomUnaVez, 600);
+    // Mensaje útil para el usuario (opcional)
+    if (errorBox) {
+      errorBox.textContent = 'Consejo: centra el código. Si se ve borroso, aléjalo un poco y espera 1 segundo sin mover.';
+    }
 
   } catch (err) {
     console.error('Error al iniciar cámara:', err?.name, err?.message, err);
-const errorBox = document.getElementById('scanner-error');
-if (errorBox) {
-  errorBox.textContent = 'Error al acceder a la cámara.';
-}
+
+    if (errorBox) {
+      errorBox.textContent = 'Error al acceder a la cámara. Revisa permisos del navegador.';
+    }
+
     if (btnIniciar) btnIniciar.style.display = 'block';
+    scannerActivo = false;
   }
 }
+
         // Variables para debounce del scanner
         let ultimoTiempoEscaneo = 0;
-        const DEBOUNCE_MS = 3000; // 3 segundos entre escaneos
+        const DEBOUNCE_MS = 1200; // segundos entre escaneos
 
         function procesarCodigoEscaneado(codigo) {
             const ahora = Date.now();
