@@ -1820,16 +1820,8 @@ async function iniciarScanner() {
   };
 
   try {
-    // Configuración mejorada de cámara
-    const cameraConfig = {
-      facingMode: "environment",
-      width: { ideal: 1920 },
-      height: { ideal: 1080 },
-      focusMode: { ideal: "continuous" }
-    };
-
     await window.html5QrCode.start(
-      cameraConfig,
+      { facingMode: "environment" },
       {
         fps: 15,
         qrbox: qrboxFn
@@ -1849,14 +1841,12 @@ async function iniciarScanner() {
       const track = window.html5QrCode.getRunningTrack?.();
       if (track) {
         const capabilities = track.getCapabilities?.() || {};
-        const settings = track.getSettings?.() || {};
-        
         const constraints = {};
         
         // Aplicar zoom si está disponible (2x por defecto)
         if (capabilities.zoom) {
           const maxZoom = capabilities.zoom.max || 4;
-          const targetZoom = Math.min(2.0, maxZoom); // Zoom 2x o máximo disponible
+          const targetZoom = Math.min(2.0, maxZoom);
           constraints.zoom = targetZoom;
           console.log(`Zoom aplicado: ${targetZoom}x (max: ${maxZoom}x)`);
         }
@@ -1866,10 +1856,11 @@ async function iniciarScanner() {
           constraints.focusMode = 'continuous';
         }
         
-        // Aplicar torch/linterna si hay poca luz (opcional, comentado por defecto)
-        // if (capabilities.torch) {
-        //   constraints.torch = true;
-        // }
+        // Pedir mayor resolución
+        if (capabilities.width && capabilities.height) {
+          constraints.width = { ideal: 1920 };
+          constraints.height = { ideal: 1080 };
+        }
         
         if (Object.keys(constraints).length > 0) {
           await track.applyConstraints({ advanced: [constraints] });
