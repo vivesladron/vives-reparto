@@ -1836,39 +1836,41 @@ async function iniciarScanner() {
 
     scannerActivo = true;
 
-    // Aplicar zoom y mejoras de enfoque después de iniciar
-    try {
-      const track = window.html5QrCode.getRunningTrack?.();
-      if (track) {
-        const capabilities = track.getCapabilities?.() || {};
-        const constraints = {};
+    // Aplicar zoom después de un delay para que la cámara esté estable
+    setTimeout(async () => {
+      try {
+        const videoTrack = window.html5QrCode.getRunningTrack?.();
+        if (!videoTrack) {
+          console.log('No se encontró track de video');
+          return;
+        }
         
-        // Aplicar zoom si está disponible (2x por defecto)
-        if (capabilities.zoom) {
+        const capabilities = videoTrack.getCapabilities?.();
+        console.log('Capacidades de cámara:', capabilities);
+        
+        if (capabilities?.zoom) {
           const maxZoom = capabilities.zoom.max || 4;
-          const targetZoom = Math.min(2.0, maxZoom);
-          constraints.zoom = targetZoom;
-          console.log(`Zoom aplicado: ${targetZoom}x (max: ${maxZoom}x)`);
+          const targetZoom = Math.min(2.5, maxZoom);
+          
+          await videoTrack.applyConstraints({
+            zoom: targetZoom
+          });
+          console.log(`Zoom aplicado: ${targetZoom}x`);
+        } else {
+          console.log('Zoom no soportado en este dispositivo');
         }
         
-        // Forzar autofoco continuo si está disponible
-        if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-          constraints.focusMode = 'continuous';
+        // Autofoco continuo
+        if (capabilities?.focusMode?.includes('continuous')) {
+          await videoTrack.applyConstraints({
+            focusMode: 'continuous'
+          });
+          console.log('Autofoco continuo activado');
         }
-        
-        // Pedir mayor resolución
-        if (capabilities.width && capabilities.height) {
-          constraints.width = { ideal: 1920 };
-          constraints.height = { ideal: 1080 };
-        }
-        
-        if (Object.keys(constraints).length > 0) {
-          await track.applyConstraints({ advanced: [constraints] });
-        }
+      } catch (e) {
+        console.log('Error aplicando mejoras de cámara:', e);
       }
-    } catch (e) {
-      console.log('No se pudieron aplicar mejoras de cámara:', e);
-    }
+    }, 1000);
 
     // Mensaje útil para el usuario (opcional)
     //if (errorBox) {
