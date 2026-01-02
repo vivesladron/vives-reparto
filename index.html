@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Favicon -->
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-
-<!-- Apple Touch Icon (iPhone / iPad) -->
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-<!-- Web App Manifest -->
-<link rel="manifest" href="/site.webmanifest">
-
-<!-- Color de la app (barra superior móvil) -->
-<meta name="theme-color" content="#e53935">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -925,6 +912,9 @@
             localStorage.setItem('vivesRepartoConfig', JSON.stringify({
                 repartidorActual: appData.repartidorActual, tabActual: appData.tabActual, pendingChanges: appData.pendingChanges
             }));
+            localStorage.setItem('vivesRepartoData', JSON.stringify({
+                entregas: appData.entregas, articulos: appData.articulos, fecha: appData.fecha, repartidores: appData.repartidores
+            }));
         }
 
         function loadFromLocal() {
@@ -935,6 +925,14 @@
                 appData.repartidorActual = c.repartidorActual || 'TODOS';
                 appData.tabActual = c.tabActual || 'reparto';
                 appData.pendingChanges = c.pendingChanges || [];
+            }
+            const data = localStorage.getItem('vivesRepartoData');
+            if (data) {
+                const d = JSON.parse(data);
+                appData.entregas = d.entregas || [];
+                appData.articulos = d.articulos || [];
+                appData.fecha = d.fecha || null;
+                appData.repartidores = d.repartidores || ['TODOS'];
             }
             return appData.usuarioActual !== null;
         }
@@ -1582,8 +1580,14 @@
         }
 
         function generarMensajeRecordatorio(entrega, idioma) {
-            const diaSemana = getDiaSemana(entrega.dia, idioma);
-            const partesFecha = entrega.dia.split('-');
+            // Usar entrega.dia o appData.fecha como fallback
+            const fecha = entrega.dia || appData.fecha || '';
+            if (!fecha) {
+                console.error('No hay fecha disponible para el recordatorio');
+                return 'Error: No hay fecha disponible';
+            }
+            const diaSemana = getDiaSemana(fecha, idioma);
+            const partesFecha = fecha.split('-');
             const fechaCorta = `${partesFecha[0]}/${partesFecha[1]}`;
             
             const mensajes = {
