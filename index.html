@@ -1829,19 +1829,36 @@ await window.html5QrCode.start(
   }
 );
 scannerActivo = true;
-// Intentar aplicar zoom para facilitar el escaneo (si el iPhone lo permite)
+const errorBox = document.getElementById('scanner-error');
+
 try {
   const track = window.html5QrCode.getRunningTrack?.();
   const caps = track?.getCapabilities?.();
-  if (caps?.zoom) {
-    const z = Math.min(2, caps.zoom.max); // zoom x2
-    await track.applyConstraints({
-      advanced: [{ zoom: z }]
-    });
+  if (errorBox) {
+    errorBox.textContent = caps?.zoom
+      ? `Zoom soportado (max: ${caps.zoom.max})`
+      : 'Zoom NO soportado en este iPhone/Safari';
   }
 } catch (e) {
-  // Si el dispositivo no soporta zoom, no hacemos nada
+  if (errorBox) errorBox.textContent = 'No se pudo leer capabilities de cámara';
 }
+function aplicarZoomUnaVez() {
+  try {
+    const track = window.html5QrCode.getRunningTrack?.();
+    const caps = track?.getCapabilities?.();
+    if (!caps?.zoom) return;
+
+    const z = Math.min(2, caps.zoom.max);
+    track.applyConstraints({
+      advanced: [{ zoom: z }]
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+// aplicar ahora y repetir una vez (html5-qrcode a veces pisa constraints al iniciar)
+aplicarZoomUnaVez();
+setTimeout(aplicarZoomUnaVez, 600);
+
   } catch (err) {
     console.error('Error al iniciar cámara:', err?.name, err?.message, err);
 const errorBox = document.getElementById('scanner-error');
