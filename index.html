@@ -1774,13 +1774,8 @@ ${entrega.vendedor}`
         
         async function showTab(t) { 
             // Detener scanner si cambiamos de pestaña
-            if (window.html5QrCode && scannerActivo) {
-                try {
-                    await window.html5QrCode.stop();
-                    scannerActivo = false;
-                } catch (e) {
-                    console.log('Scanner ya detenido');
-                }
+            if (scannerActivo) {
+                detenerScanner();
             }
             appData.tabActual = t; 
             saveToLocal(); 
@@ -1805,52 +1800,160 @@ async function iniciarScanner() {
   if (btnIniciar) btnIniciar.style.display = 'none';
   if (errorBox) errorBox.textContent = '';
 
-  // Asegurar contenedor limpio (evita estados raros si hubo errores previos)
+  // Limpiar contenedor
   if (container) container.innerHTML = '';
 
-  // Crear instancia si no existe
+  try {
+    // Crear video manualmente para tener control del zoom
+    const video = document.createElement('video');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('autoplay', '');
+    video.setAttribute('muted', '');
+    video.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 12px; transform: scale(1.5); transform-origin: center center;';
+    container.appendChild(video);
+
+    // Añadir recuadro de guía
+    const guideBox = document.createElement('div');
+    guideBox.id = 'scanner-guide';
+    guideBox.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 40%; border: 3px solid #4CAF50; border-radius: 8px; pointer-events: none; z-index: 10; box-shadow: 0 0 0 9999px rgba(0,0,0,0.35);';
+    container.style.position = 'relative';
+    container.appendChild(guideBox);
+
+    // Solicitar cámara
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
+    });
+
+    video.srcObject = stream;
+    await video.play();
+    window.scannerStream = stream;
+    scannerActivo = true;
+
+    // Usar BarcodeDetector nativo si está disponible (iOS 15.4+)
+    let detector = null;
+    if ('BarcodeDetector' in window) {
+      try {
+        detector = new BarcodeDetector({
+          formats: ['qr_code', 'ean_13', 'ean_8', 'code_128', 'code_39']
+        });
+        console.log('Usando BarcodeDetector nativo');
+      } catch (e) {
+        console.log('BarcodeDetector no disponible:', e);
+      }
+    }
+
+    // Fallback: cargar jsQR si no hay BarcodeDetector
+    if (!detector && !window.jsQR) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      console.log('Usando jsQR como fallback');
+    }
+
+    // Canvas para fallback jsQR
+    let canvas, ctx;
+    if (!detector) {
+      canvas = document.createElement('canvas');
+      canvas.style.display = 'none';
+      container.appendChild(canvas);
+      ctx = canvas.getContext('2d', { willReadFrequently: true });
+    }
+
+    // Bucle de escaneo
+    const scanFrame = async () => {
+      if (!scannerActivo) return;
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        try {
+          if (detector) {
+            // Usar BarcodeDetector nativo
+            const barcodes = await detector.detect(video);
+            if (barcodes.length > 0) {
+              procesarCodigoEscaneado(barcodes[0].rawValue);
+            }
+          } else if (window.jsQR) {
+            // Fallback con jsQR (solo QR codes)
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+            if (qrCode && qrCode.data) {
+              procesarCodigoEscaneado(qrCode.data);
+            }
+          }
+        } catch (e) {
+          // Ignorar errores de detección
+        }
+      }
+
+      if (scannerActivo) {
+        requestAnimationFrame(scanFrame);
+      }
+    };
+
+    // Iniciar escaneo
+    setTimeout(scanFrame, 300);
+
+  } catch (err) {
+    console.error('Error al iniciar cámara:', err);
+
+    // Fallback a html5-qrcode si ZXing falla
+    console.log('Intentando fallback con html5-qrcode...');
+    await iniciarScannerFallback();
+  }
+}
+
+async function iniciarScannerFallback() {
+  const container = document.getElementById('scanner-container');
+  const btnIniciar = document.getElementById('btnIniciarScanner');
+  const errorBox = document.getElementById('scanner-error');
+
+  if (container) container.innerHTML = '';
+
   if (!window.html5QrCode) {
     window.html5QrCode = new Html5Qrcode("scanner-container");
   }
 
-  // Recuadro más pequeño para forzar acercar el código
-  const qrboxFn = (vw, vh) => {
-    const size = Math.floor(Math.min(vw, vh) * 0.55);
-    return { width: size, height: size };
-  };
-
   try {
     await window.html5QrCode.start(
       { facingMode: "environment" },
-      {
-        fps: 15,
-        qrbox: qrboxFn
-      },
-      (decodedText) => {
-        procesarCodigoEscaneado(decodedText);
-      },
-      () => {
-        // Ignorar errores de escaneo continuo
-      }
+      { fps: 15, qrbox: (vw, vh) => ({ width: Math.floor(vw * 0.85), height: Math.floor(vh * 0.45) }) },
+      (decodedText) => procesarCodigoEscaneado(decodedText),
+      () => {}
     );
-
     scannerActivo = true;
-
-    // Mensaje útil para el usuario (opcional)
-    //if (errorBox) {
-    //  errorBox.textContent = 'Consejo: centra el código. Si se ve borroso, aléjalo un poco y espera 1 segundo sin mover.';
-    //}
-
   } catch (err) {
-    console.error('Error al iniciar cámara:', err?.name, err?.message, err);
-
-    if (errorBox) {
-      errorBox.textContent = 'Error al acceder a la cámara. Revisa permisos del navegador.';
-    }
-
+    if (errorBox) errorBox.textContent = 'Error al acceder a la cámara. Revisa permisos.';
     if (btnIniciar) btnIniciar.style.display = 'block';
     scannerActivo = false;
   }
+}
+
+function detenerScanner() {
+  scannerActivo = false;
+  
+  // Detener stream de video
+  if (window.scannerStream) {
+    window.scannerStream.getTracks().forEach(track => track.stop());
+    window.scannerStream = null;
+  }
+  
+  // Detener html5QrCode (fallback)
+  if (window.html5QrCode) {
+    try { window.html5QrCode.stop(); } catch(e) {}
+  }
+  
+  const container = document.getElementById('scanner-container');
+  if (container) container.innerHTML = '';
 }
 
         // Variables para debounce del scanner
