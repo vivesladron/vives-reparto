@@ -1809,16 +1809,11 @@ ${entrega.vendedor}`
             
             try {
                 await window.html5QrCode.start(
-                  {
-                    facingMode: "environment",
-                    width:  { ideal: 1280 },
-                    height: { ideal: 720 },
-                    aspectRatio: { ideal: 1.7777777778 } // 16:9
-                  },
-                  {
-                    fps: 15,
-                    qrbox: { width: 280, height: 280 }
-                  },
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
                     (decodedText) => {
                         procesarCodigoEscaneado(decodedText);
                     },
