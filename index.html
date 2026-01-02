@@ -1820,10 +1820,18 @@ async function iniciarScanner() {
   };
 
   try {
+    // Configuración mejorada de cámara
+    const cameraConfig = {
+      facingMode: "environment",
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+      focusMode: { ideal: "continuous" }
+    };
+
     await window.html5QrCode.start(
-      { facingMode: "environment" },
+      cameraConfig,
       {
-        fps: 12,
+        fps: 15,
         qrbox: qrboxFn
       },
       (decodedText) => {
@@ -1836,15 +1844,39 @@ async function iniciarScanner() {
 
     scannerActivo = true;
 
-    // Best-effort: pedir más resolución tras arrancar (iOS puede ignorarlo)
+    // Aplicar zoom y mejoras de enfoque después de iniciar
     try {
       const track = window.html5QrCode.getRunningTrack?.();
-      await track?.applyConstraints?.({
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-      });
+      if (track) {
+        const capabilities = track.getCapabilities?.() || {};
+        const settings = track.getSettings?.() || {};
+        
+        const constraints = {};
+        
+        // Aplicar zoom si está disponible (2x por defecto)
+        if (capabilities.zoom) {
+          const maxZoom = capabilities.zoom.max || 4;
+          const targetZoom = Math.min(2.0, maxZoom); // Zoom 2x o máximo disponible
+          constraints.zoom = targetZoom;
+          console.log(`Zoom aplicado: ${targetZoom}x (max: ${maxZoom}x)`);
+        }
+        
+        // Forzar autofoco continuo si está disponible
+        if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+          constraints.focusMode = 'continuous';
+        }
+        
+        // Aplicar torch/linterna si hay poca luz (opcional, comentado por defecto)
+        // if (capabilities.torch) {
+        //   constraints.torch = true;
+        // }
+        
+        if (Object.keys(constraints).length > 0) {
+          await track.applyConstraints({ advanced: [constraints] });
+        }
+      }
     } catch (e) {
-      // No hacer nada si iOS lo rechaza
+      console.log('No se pudieron aplicar mejoras de cámara:', e);
     }
 
     // Mensaje útil para el usuario (opcional)
