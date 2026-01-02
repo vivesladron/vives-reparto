@@ -1794,42 +1794,53 @@ ${entrega.vendedor}`
             setTimeout(() => iniciarScanner(), 300);
         }
 
-        async function iniciarScanner() {
-            const container = document.getElementById('scanner-container');
-            const btnIniciar = document.getElementById('btnIniciarScanner');
-            
-            if (scannerActivo) return;
-            
-            if (btnIniciar) btnIniciar.style.display = 'none';
-            
-            // Crear nueva instancia si no existe
-            if (!window.html5QrCode) {
-                window.html5QrCode = new Html5Qrcode("scanner-container");
-            }
-            
-            try {
-                await window.html5QrCode.start(
-                    { facingMode: "environment" },
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 }
-                    },
-                    (decodedText) => {
-                        procesarCodigoEscaneado(decodedText);
-                    },
-                    (errorMessage) => {
-                        // Ignorar errores de escaneo continuo
-                    }
-                );
-                scannerActivo = true;
-            } catch (err) {
-                console.error('Error al iniciar cámara:', err);
-                if (container) {
-                    container.innerHTML = '<p style="color: red; padding: 20px;">Error al acceder a la cámara. Asegúrate de dar permisos.</p>';
-                }
-                if (btnIniciar) btnIniciar.style.display = 'block';
-            }
-        }
+async function iniciarScanner() {
+  const container = document.getElementById('scanner-container');
+  const btnIniciar = document.getElementById('btnIniciarScanner');
+
+  if (scannerActivo) return;
+
+  if (btnIniciar) btnIniciar.style.display = 'none';
+
+  // Crear nueva instancia si no existe
+  if (!window.html5QrCode) {
+    window.html5QrCode = new Html5Qrcode("scanner-container");
+  }
+
+  // Recuadro grande (mejor para EAN) y adaptativo al tamaño de pantalla
+  const qrboxFn = (vw, vh) => {
+    const size = Math.floor(Math.min(vw, vh) * 0.80); // 80% del lado corto
+    return { width: size, height: size };
+  };
+
+  try {
+    await window.html5QrCode.start(
+      {
+        facingMode: "environment",
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      {
+        fps: 12,          // más estable en iPhone para EAN que 15
+        qrbox: qrboxFn
+      },
+      (decodedText) => {
+        procesarCodigoEscaneado(decodedText);
+      },
+      () => {
+        // Ignorar errores de escaneo continuo
+      }
+    );
+    scannerActivo = true;
+  } catch (err) {
+    console.error('Error al iniciar cámara:', err);
+    if (container) {
+      container.innerHTML = '<p style="color: red; padding: 20px;">Error al acceder a la cámara. Asegúrate de dar permisos.</p>';
+    }
+    if (btnIniciar) btnIniciar.style.display = 'block';
+  }
+}
+
 
         // Variables para debounce del scanner
         let ultimoTiempoEscaneo = 0;
