@@ -1788,11 +1788,11 @@ ${entrega.vendedor}`
 
         let scannerActivo = false;
 
-        function abrirScannerDesdeDetalle() {
-            closeDetail();
-            showTab('lista');
-            setTimeout(() => iniciarScanner(), 300);
-        }
+async function abrirScannerDesdeDetalle() {
+  closeDetail();
+  await showTab('lista');      // espera a renderApp()
+  await iniciarScanner();      // arranca cámara sin delay
+}
 
 async function iniciarScanner() {
   const container = document.getElementById('scanner-container');
@@ -1833,7 +1833,7 @@ async function iniciarScanner() {
     );
     scannerActivo = true;
   } catch (err) {
-    console.error('Error al iniciar cámara:', err);
+    console.error('Error al iniciar cámara:', err?.name, err?.message, err);
     if (container) {
       container.innerHTML = '<p style="color: red; padding: 20px;">Error al acceder a la cámara. Asegúrate de dar permisos.</p>';
     }
