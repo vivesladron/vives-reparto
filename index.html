@@ -1836,41 +1836,20 @@ async function iniciarScanner() {
 
     scannerActivo = true;
 
-    // Aplicar zoom después de un delay para que la cámara esté estable
-    setTimeout(async () => {
+    // iOS no soporta zoom via applyConstraints, usar CSS transform
+    setTimeout(() => {
       try {
-        const videoTrack = window.html5QrCode.getRunningTrack?.();
-        if (!videoTrack) {
-          console.log('No se encontró track de video');
-          return;
-        }
-        
-        const capabilities = videoTrack.getCapabilities?.();
-        console.log('Capacidades de cámara:', capabilities);
-        
-        if (capabilities?.zoom) {
-          const maxZoom = capabilities.zoom.max || 4;
-          const targetZoom = Math.min(2.5, maxZoom);
-          
-          await videoTrack.applyConstraints({
-            zoom: targetZoom
-          });
-          console.log(`Zoom aplicado: ${targetZoom}x`);
-        } else {
-          console.log('Zoom no soportado en este dispositivo');
-        }
-        
-        // Autofoco continuo
-        if (capabilities?.focusMode?.includes('continuous')) {
-          await videoTrack.applyConstraints({
-            focusMode: 'continuous'
-          });
-          console.log('Autofoco continuo activado');
+        const videoElement = document.querySelector('#scanner-container video');
+        if (videoElement) {
+          // Zoom visual 1.8x centrado
+          videoElement.style.transform = 'scale(1.8)';
+          videoElement.style.transformOrigin = 'center center';
+          console.log('Zoom CSS aplicado: 1.8x');
         }
       } catch (e) {
-        console.log('Error aplicando mejoras de cámara:', e);
+        console.log('Error aplicando zoom CSS:', e);
       }
-    }, 1000);
+    }, 500);
 
     // Mensaje útil para el usuario (opcional)
     //if (errorBox) {
