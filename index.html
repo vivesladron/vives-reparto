@@ -659,6 +659,77 @@
         .btn-modelo {
             background: var(--accent-orange) !important;
         }
+
+        /* Tabla de pedidos */
+        .pedido-section {
+            padding: 16px;
+        }
+        .pedido-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .pedido-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .pedido-table th {
+            background: var(--accent-blue);
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .pedido-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .pedido-table tr:nth-child(even) {
+            background: var(--bg-primary);
+        }
+        .pedido-table .col-codigo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .pedido-table .col-pendiente,
+        .pedido-table .col-albaran {
+            text-align: center;
+            font-weight: 600;
+            width: 60px;
+        }
+        .pedido-table .col-pendiente {
+            color: var(--accent-red);
+        }
+        .pedido-table .col-albaran {
+            color: var(--accent-green);
+        }
+        .pedido-loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        .pedido-error {
+            text-align: center;
+            padding: 20px;
+            color: var(--accent-red);
+            background: #ffebee;
+            border-radius: 8px;
+            margin: 16px;
+        }
+        .btn-refresh-pedido {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 <body>
@@ -1471,6 +1542,13 @@
             document.getElementById('headerDate').textContent = appData.fecha || new Date().toLocaleDateString('es-ES');
             if (appData.usuarioActual) document.getElementById('userBadgeName').textContent = appData.emailActual;
             
+            // Cambiar nombre de pestaña según rol
+            const tabLista = document.getElementById('tabLista');
+            if (tabLista) {
+                const svg = tabLista.querySelector('svg').outerHTML;
+                tabLista.innerHTML = svg + (isAdmin() ? ' Pedido' : ' Escáner');
+            }
+            
             // Actualizar dropdown de filtros
             const dropdown = document.getElementById('filtroDropdown');
             dropdown.innerHTML = appData.repartidores.map(r => 
@@ -1513,20 +1591,35 @@
             if (appData.tabActual === 'servicios') { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg><p>Próximamente</p></div>`; return; }
             
             if (appData.tabActual === 'lista') { 
-                c.innerHTML = `
-                    <div class="scanner-section">
-                        <h3>Escanear código</h3>
+                if (isAdmin()) {
+                    // Vista admin: tabla de pedidos
+                    c.innerHTML = `
+                        <div class="pedido-section">
+                            <h3>Pedido Celsa</h3>
+                            <button class="btn-refresh-pedido" onclick="cargarPedidoCelsa()">🔄 Actualizar</button>
+                            <div id="pedido-contenido">
+                                <div class="pedido-loading">Cargando pedidos...</div>
+                            </div>
+                        </div>
+                    `;
+                    cargarPedidoCelsa();
+                } else {
+                    // Vista repartidor: escáner
+                    c.innerHTML = `
+                        <div class="scanner-section">
+                            <h3>Escanear código</h3>
 
-                        <div id="scanner-container"></div>
-                        <div id="scanner-error" style="color:red; padding:12px;"></div>
-                        <div id="resultadoEAN"></div>
-                        <button class="btn-glide" onclick="iniciarScanner()" id="btnIniciarScanner">
-                            ${SVG_CAMERA} Iniciar cámara
-                        </button>
-                    </div>
-                `;
-                // Iniciar scanner automáticamente
-                setTimeout(iniciarScanner, 500);
+                            <div id="scanner-container"></div>
+                            <div id="scanner-error" style="color:red; padding:12px;"></div>
+                            <div id="resultadoEAN"></div>
+                            <button class="btn-glide" onclick="iniciarScanner()" id="btnIniciarScanner">
+                                ${SVG_CAMERA} Iniciar cámara
+                            </button>
+                        </div>
+                    `;
+                    // Iniciar scanner automáticamente
+                    setTimeout(iniciarScanner, 500);
+                }
                 return; 
             }
             if (entregas.length === 0) { c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>${appData.tabActual === 'reparto' ? 'No hay entregas pendientes' : 'No hay entregas terminadas'}</p></div>`; return; }
@@ -1950,6 +2043,63 @@ async function iniciarScannerFallback() {
     if (errorBox) errorBox.textContent = 'Error al acceder a la cámara. Revisa permisos.';
     if (btnIniciar) btnIniciar.style.display = 'block';
     scannerActivo = false;
+  }
+}
+
+// Función para cargar pedidos de Celsa
+async function cargarPedidoCelsa() {
+  const contenido = document.getElementById('pedido-contenido');
+  if (!contenido) return;
+  
+  contenido.innerHTML = '<div class="pedido-loading">⏳ Cargando pedidos...</div>';
+  
+  try {
+    const response = await fetch('https://n8n-n8n.qhekde.easypanel.host/webhook/pedido-celsa');
+    if (!response.ok) throw new Error('Error en la respuesta');
+    
+    const datos = await response.json();
+    
+    if (!datos || datos.length === 0) {
+      contenido.innerHTML = '<div class="pedido-loading">No hay pedidos pendientes</div>';
+      return;
+    }
+    
+    // Renderizar tabla
+    let html = `
+      <table class="pedido-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Pdte</th>
+            <th>Alb</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    datos.forEach(item => {
+      html += `
+        <tr>
+          <td class="col-codigo">${item.codigo || ''}</td>
+          <td>${item.descripcion || ''}</td>
+          <td class="col-pendiente">${item.pendiente || ''}</td>
+          <td class="col-albaran">${item.albaran || ''}</td>
+        </tr>
+      `;
+    });
+    
+    html += '</tbody></table>';
+    contenido.innerHTML = html;
+    
+  } catch (error) {
+    console.error('Error cargando pedidos:', error);
+    contenido.innerHTML = `
+      <div class="pedido-error">
+        Error al cargar pedidos<br>
+        <button class="btn-refresh-pedido" onclick="cargarPedidoCelsa()" style="margin-top:10px">Reintentar</button>
+      </div>
+    `;
   }
 }
 
