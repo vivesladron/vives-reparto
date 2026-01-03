@@ -1973,18 +1973,19 @@ function detenerScanner() {
 
         // Variables para debounce del scanner
         let ultimoTiempoEscaneo = 0;
-        const DEBOUNCE_MS = 1200; // segundos entre escaneos
+        const DEBOUNCE_MS = 1200; // debounce rápido
+        const DEBOUNCE_EXITO_MS = 3000; // debounce tras lectura correcta
 
         function procesarCodigoEscaneado(codigo) {
             const ahora = Date.now();
             
-            // Evitar procesar cualquier código en menos de 3 segundos
+            // Evitar procesar cualquier código antes del debounce
             if (ahora - ultimoTiempoEscaneo < DEBOUNCE_MS) {
                 console.log('Debounce: ignorando escaneo');
                 return;
             }
             
-            // Actualizar tiempo
+            // Actualizar tiempo (debounce normal por defecto)
             ultimoTiempoEscaneo = ahora;
             
             console.log('Código escaneado:', codigo);
@@ -1994,6 +1995,8 @@ function detenerScanner() {
             // Detectar si es URL de EPREL (case insensitive)
             if (codigo.toLowerCase().includes('eprel.ec.europa.eu')) {
                 console.log('Detectado QR EPREL');
+                // Debounce largo para lectura correcta
+                ultimoTiempoEscaneo = ahora + (DEBOUNCE_EXITO_MS - DEBOUNCE_MS);
                 procesarUrlEPREL(codigo.toLowerCase());
                 return;
             }
@@ -2016,6 +2019,9 @@ function detenerScanner() {
             const articulo = appData.articulos.find(a => a.ean === codigo);
             
             if (articulo) {
+                // Debounce largo para lectura correcta
+                ultimoTiempoEscaneo = ahora + (DEBOUNCE_EXITO_MS - DEBOUNCE_MS);
+                
                 const entrega = appData.entregas.find(e => e.documento === articulo.documento);
                 
                 resultado.innerHTML = `
