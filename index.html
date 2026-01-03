@@ -730,6 +730,31 @@
             cursor: pointer;
             margin-bottom: 12px;
         }
+        .pedido-table .col-estado {
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 4px;
+            border-radius: 4px;
+            white-space: nowrap;
+            min-width: 70px;
+        }
+        .pedido-table .estado-vacio {
+            color: #999;
+        }
+        .pedido-table .estado-almacén {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .pedido-table .estado-reservas {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .pedido-table .estado-para-sacar {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
     </style>
 </head>
 <body>
@@ -2054,7 +2079,10 @@ async function cargarPedidoCelsa() {
   contenido.innerHTML = '<div class="pedido-loading">⏳ Cargando pedidos...</div>';
   
   try {
-    const response = await fetch('https://n8n-n8n.qhekde.easypanel.host/webhook/pedido-celsa');
+    const response = await fetch('https://n8n-n8n.qhekde.easypanel.host/webhook/pedido-celsa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
     if (!response.ok) throw new Error('Error en la respuesta');
     
     const datos = await response.json();
@@ -2063,6 +2091,9 @@ async function cargarPedidoCelsa() {
       contenido.innerHTML = '<div class="pedido-loading">No hay pedidos pendientes</div>';
       return;
     }
+    
+    // Cargar estados guardados
+    const estadosGuardados = JSON.parse(localStorage.getItem('pedidoCelsaEstados') || '{}');
     
     // Renderizar tabla
     let html = `
@@ -2073,18 +2104,25 @@ async function cargarPedidoCelsa() {
             <th>Descripción</th>
             <th>Pdte</th>
             <th>Alb</th>
+            <th>Estado</th>
           </tr>
         </thead>
         <tbody>
     `;
     
-    datos.forEach(item => {
+    datos.forEach((item, index) => {
+      // Crear clave única: código + pendiente + albaran
+      const clave = `${item.codigo}_${item.pendiente || ''}_${item.albaran || ''}`;
+      const estadoActual = estadosGuardados[clave] || '';
+      const estadoClass = estadoActual ? `estado-${estadoActual.toLowerCase().replace(/ /g, '-')}` : 'estado-vacio';
+      
       html += `
         <tr>
           <td class="col-codigo">${item.codigo || ''}</td>
           <td>${item.descripcion || ''}</td>
           <td class="col-pendiente">${item.pendiente || ''}</td>
           <td class="col-albaran">${item.albaran || ''}</td>
+          <td class="col-estado ${estadoClass}" onclick="toggleEstadoPedido(this, '${clave}')">${estadoActual || '—'}</td>
         </tr>
       `;
     });
@@ -2101,6 +2139,28 @@ async function cargarPedidoCelsa() {
       </div>
     `;
   }
+}
+
+// Ciclar estado: vacío -> Almacén -> Reservas -> Para sacar -> vacío
+function toggleEstadoPedido(celda, clave) {
+  const estados = ['', 'Almacén', 'Reservas', 'Para sacar'];
+  const estadoActual = celda.textContent === '—' ? '' : celda.textContent;
+  const indexActual = estados.indexOf(estadoActual);
+  const nuevoIndex = (indexActual + 1) % estados.length;
+  const nuevoEstado = estados[nuevoIndex];
+  
+  // Actualizar celda
+  celda.textContent = nuevoEstado || '—';
+  celda.className = 'col-estado ' + (nuevoEstado ? `estado-${nuevoEstado.toLowerCase().replace(/ /g, '-')}` : 'estado-vacio');
+  
+  // Guardar en localStorage
+  const estadosGuardados = JSON.parse(localStorage.getItem('pedidoCelsaEstados') || '{}');
+  if (nuevoEstado) {
+    estadosGuardados[clave] = nuevoEstado;
+  } else {
+    delete estadosGuardados[clave];
+  }
+  localStorage.setItem('pedidoCelsaEstados', JSON.stringify(estadosGuardados));
 }
 
 function detenerScanner() {
